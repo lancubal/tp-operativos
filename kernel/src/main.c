@@ -8,6 +8,7 @@ int main(int argc, char* argv[]) {
     logger = loggerCreate();
     log_info(logger, "Iniciando kernel");
     t_config* config = getConfig(argv[1]);
+    startServer();
     while(true) {
         printf("1. Ejecutar Script de Operaciones\n");
         printf("2. Iniciar proceso\n");
@@ -20,6 +21,5 @@ int main(int argc, char* argv[]) {
             break;
         }
     }
-    //startServer();
     return 0;
 }

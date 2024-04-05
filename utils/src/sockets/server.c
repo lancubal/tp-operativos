@@ -8,6 +8,9 @@ t_log* logger;
 
 int startServer(void)
 {
+    char* ip = "127.0.0.1";
+    char* puerto = "4444";
+
     int socket_servidor;
 
     struct addrinfo hints, *servinfo, *p;
@@ -17,7 +20,7 @@ int startServer(void)
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
-    getaddrinfo("192.168.1.36", "4444", &hints, &servinfo);
+    getaddrinfo(ip, puerto, &hints, &servinfo);
 
     // Creamos el socket de escucha del servidor
     socket_servidor = socket(servinfo->ai_family,
@@ -26,13 +29,13 @@ int startServer(void)
 
     // Asociamos el socket a un puerto
     bind(socket_servidor, servinfo->ai_addr, servinfo->ai_addrlen) ?
-    printf("bind error\n") : printf("bind ok\n");
+    log_trace(logger, "bind error\n") : log_trace(logger,"bind ok\n");
 
     // Escuchamos las conexiones entrantes
-    listen(socket_servidor, SOMAXCONN);
+    listen(socket_servidor, SOMAXCONN) ?
+    log_info(logger, "Error al escuchar\n") : log_info(logger, "servidor escuchando: %s:%s\n", ip, puerto);
 
     freeaddrinfo(servinfo);
-    log_trace(logger, "Listo para escuchar a mi cliente");
 
     return socket_servidor;
 }
