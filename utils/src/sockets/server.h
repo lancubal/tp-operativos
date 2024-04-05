@@ -23,8 +23,6 @@ typedef enum
     PAQUETE
 }op_code;
 
-extern t_log* logger;
-
 void* getBuffer(int*, int);
 int startServer(void);
 int waitClient(int);
