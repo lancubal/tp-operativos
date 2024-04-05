@@ -6,10 +6,8 @@
 
 t_log* logger;
 
-int startServer(void)
+int startServer(char* ip, char* puerto)
 {
-    char* ip = "127.0.0.1";
-    char* puerto = "4444";
 
     int socket_servidor;
 

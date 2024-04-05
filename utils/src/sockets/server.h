@@ -24,7 +24,7 @@ typedef enum
 }op_code;
 
 void* getBuffer(int*, int);
-int startServer(void);
+int startServer(char* ip, char* puerto);
 int waitClient(int);
 t_list* getPacket(int);
 void getMessage(int);
