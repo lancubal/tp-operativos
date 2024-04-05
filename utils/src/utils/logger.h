@@ -13,6 +13,6 @@
 
 void readFromConsole(t_log*);
 t_log* loggerCreate(void);
-
+extern t_log* logger;
 #endif //TP_2024_1C_GRUPO_LOGGER_H
 
