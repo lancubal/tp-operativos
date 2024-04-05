@@ -25,7 +25,7 @@ void readFromConsole(t_log* logger)
 
 t_log* loggerCreate(void)
 {
-    t_log* nuevo_logger = log_create("client.log", "client", 1, LOG_LEVEL_INFO);
+    t_log* nuevo_logger = log_create("tp.log", "client", 1, LOG_LEVEL_INFO);
 
     return nuevo_logger;
 }
