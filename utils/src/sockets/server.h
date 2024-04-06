@@ -14,6 +14,9 @@
 #include<commons/collections/list.h>
 #include<string.h>
 #include<assert.h>
+#include <pthread.h>
+#include <errno.h>
+#include <utils/logger.h>
 
 #define PUERTO "4444"
 
@@ -23,9 +26,10 @@ typedef enum
     PAQUETE
 }op_code;
 
-void* getBuffer(int*, int);
 int startServer(char* ip, char* puerto);
 int waitClient(int);
+
+void* getBuffer(int*, int);
 t_list* getPacket(int);
 void getMessage(int);
 int getOp(int);

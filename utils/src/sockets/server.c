@@ -4,8 +4,6 @@
 
 #include "server.h"
 
-t_log* logger;
-
 int startServer(char* ip, char* puerto)
 {
 
@@ -19,19 +17,37 @@ int startServer(char* ip, char* puerto)
     hints.ai_flags = AI_PASSIVE;
 
     getaddrinfo(ip, puerto, &hints, &servinfo);
+    if(getaddrinfo(ip, puerto, &hints, &servinfo) != 0)
+    {
+        log_error(logger, "Error en getaddrinfo\n");
+        return -1;
+    }
 
     // Creamos el socket de escucha del servidor
     socket_servidor = socket(servinfo->ai_family,
                              servinfo->ai_socktype,
                              servinfo->ai_protocol);
+    if(socket_servidor == -1)
+    {
+        log_error(logger, "Error al crear el socket: %d\n", errno);
+        return -1;
+    }
 
     // Asociamos el socket a un puerto
-    bind(socket_servidor, servinfo->ai_addr, servinfo->ai_addrlen) ?
-    log_trace(logger, "bind error\n") : log_trace(logger,"bind ok\n");
+    if(bind(socket_servidor, servinfo->ai_addr, servinfo->ai_addrlen) != 0)
+    {
+        log_error(logger, "Error al bindear el socket\n");
+        close(socket_servidor);
+        return -1;
+    }
 
     // Escuchamos las conexiones entrantes
-    listen(socket_servidor, SOMAXCONN) ?
-    log_info(logger, "Error al escuchar\n") : log_info(logger, "servidor escuchando: %s:%s\n", ip, puerto);
+    if(listen(socket_servidor, SOMAXCONN) != 0)
+    {
+        log_error(logger, "Error al escuchar\n");
+        close(socket_servidor);
+        return -1;
+    }
 
     freeaddrinfo(servinfo);
 
@@ -42,6 +58,11 @@ int waitClient(int socket_servidor)
 {
     // Aceptamos un nuevo cliente
     int socket_cliente = accept(socket_servidor, NULL, NULL);
+    if(socket_cliente != 0)
+    {
+        log_error(logger, "Error al aceptar un cliente\n");
+        return -1;
+    }
     log_info(logger, "Se conecto un cliente!");
 
     return socket_cliente;
