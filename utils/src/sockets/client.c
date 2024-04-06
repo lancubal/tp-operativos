@@ -4,7 +4,7 @@
 
 #include "client.h"
 #include <errno.h>
-
+t_log* logger;
 
 void* serializar_paquete(t_paquete* paquete, int bytes)
 {
@@ -40,9 +40,11 @@ int connectToServer(char *ip, char* puerto)
 
 
     // Ahora que tenemos el socket, vamos a conectarlo
-    connect(socket_cliente, server_info->ai_addr, server_info->ai_addrlen) == -1 ?
-    printf("No se pudo conectar al servidor: %d errno\n", errno) : printf("Servidor conectado\n");
-
+    if(connect(socket_cliente, server_info->ai_addr, server_info->ai_addrlen) != 0)
+    {
+        log_error(logger, "No se pudo conectar al servidor: %d errno\n", errno);
+        return -1;
+    }
 
     freeaddrinfo(server_info);
 

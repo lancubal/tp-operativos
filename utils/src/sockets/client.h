@@ -13,12 +13,14 @@
 #include<netdb.h>
 #include<string.h>
 #include<commons/log.h>
+#include "server.h"
+#include "utils/logger.h"
 
-typedef enum
+/*typedef enum
 {
     MENSAJE,
     PAQUETE
-}op_code;
+}op_code;*/
 
 typedef struct
 {
