@@ -33,5 +33,6 @@ void* getBuffer(int*, int);
 t_list* getPacket(int);
 void getMessage(int);
 int getOp(int);
+void iniciarServerProceso(char* ip, char* puerto, char* proceso);
 
 #endif //TP_2024_1C_GRUPO_SERVER_H

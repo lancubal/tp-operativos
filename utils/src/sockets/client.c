@@ -4,7 +4,6 @@
 
 #include "client.h"
 #include <errno.h>
-t_log* logger;
 
 void* serializar_paquete(t_paquete* paquete, int bytes)
 {
@@ -119,3 +118,11 @@ void freePacket(t_paquete* paquete)
     free(paquete);
 }
 
+int conectarA(char* ip, char* puerto, char* nombreProceso){
+    int socket_cliente = connectToServer(ip, puerto);
+    if(errno != 0) {
+        log_error(logger, "Error al conectar a %s", nombreProceso);
+        exit(-1);
+    }
+    return socket_cliente;
+}
