@@ -19,7 +19,7 @@ int startServer(char* ip, char* puerto)
     getaddrinfo(ip, puerto, &hints, &servinfo);
     if(getaddrinfo(ip, puerto, &hints, &servinfo) != 0)
     {
-        log_error(logger, "Error en getaddrinfo\n");
+        log_error(logger, "Error en getaddrinfo: %d\n", errno);
         return -1;
     }
 

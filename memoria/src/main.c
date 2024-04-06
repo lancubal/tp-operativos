@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <utils/config.h>
 #include <sockets/server.h>
+#include <memoria_config.h>
+
+t_log *logger;
 
 int main(int argc, char* argv[]) {
     //Verificar que haya un archivo de configuración
@@ -15,25 +18,12 @@ int main(int argc, char* argv[]) {
     log_info(logger, "Iniciando memoria");
 
     //Obtener datos de configuracion
-    t_config* config = getConfig(argv[1]);
-    char* ipMemoria = config_get_string_value(config, "IP_MEMORIA");
-    char* puertoEscucha = string_from_format("%d", config_get_int_value(config, "PUERTO_ESCUCHA"));
-    int tamMemoria = config_get_int_value(config, "TAM_MEMORIA");
-    int tamPagina = config_get_int_value(config, "TAM_PAGINA");
-    char* pathInstrucciones = config_get_string_value(config, "PATH_INSTRUCCIONES");
-    int retardoRespuesta = config_get_int_value(config, "RETARDO_RESPUESTA");
-    log_info(logger, "Configuracion cargada");
+    memoria_config_t* memoriaConfig = memoriaConfigLoad(argv[1]);
 
     //Iniciar servidor de memoria
-    int socketMemoria = startServer(ipMemoria, puertoEscucha);
-    if(socketMemoria == -1) {
-        log_error(logger, "Error al iniciar servidor de memoria");
-        return -1;
-    }
-    log_info(logger, "Servidor de memoria iniciado en: %s:%s", ipMemoria, puertoEscucha);
+    iniciarServerProceso(memoriaConfig->ipMemoria, memoriaConfig->puertoEscucha, "Memoria");
 
     //Finalizar
-    config_destroy(config);
     log_destroy(logger);
     return 0;
 }

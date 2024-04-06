@@ -1,8 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <cpu_config.h>
-#include <cpu_server.h>
-#include <cpu_client.h>
+#include <sockets/client.h>
+#include <utils/logger.h>
+#include <commons/log.h>
+
+t_log* logger;
 
 int main(int argc, char* argv[]) {
     //Verificar que haya un archivo de configuración
@@ -18,15 +21,15 @@ int main(int argc, char* argv[]) {
     //Obtener datos de configuracion
     cpu_config_t* cpuConfig = cpuConfigLoad(argv[1]);
 
+
     //Iniciar Dispatch e Interrupt
-    iniciarDispatch(cpuConfig->ipCPU,cpuConfig->puertoEscuchaDispatch);
-    iniciarInterrupt(cpuConfig->ipCPU,cpuConfig->puertoEscuchaInterrupt);
+    iniciarServerProceso(cpuConfig->ipCPU, cpuConfig->puertoEscuchaDispatch, "Dispatch");
+    iniciarServerProceso(cpuConfig->ipCPU, cpuConfig->puertoEscuchaInterrupt, "Interrupt");
 
     //Conectar a memoria
-    conectarAMemoria(cpuConfig->ipMemoria,cpuConfig->puertoMemoria);
+    conectarA(cpuConfig->ipMemoria, cpuConfig->puertoMemoria, "Memoria");
 
     //Finalizar
     log_destroy(logger);
     return 0;
 }
-
