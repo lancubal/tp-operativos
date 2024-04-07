@@ -17,8 +17,15 @@
 #include <pthread.h>
 #include <errno.h>
 #include <utils/logger.h>
+#include <pthread.h>
 
 #define PUERTO "4444"
+
+typedef struct {
+    char* ip;
+    char* puerto;
+    char* proceso;
+} server_args_t;
 
 typedef enum
 {
@@ -33,6 +40,6 @@ void* getBuffer(int*, int);
 t_list* getPacket(int);
 void getMessage(int);
 int getOp(int);
-void iniciarServerProceso(char* ip, char* puerto, char* proceso);
+void iniciarServerProceso(server_args_t* args);
 
 #endif //TP_2024_1C_GRUPO_SERVER_H

@@ -122,21 +122,21 @@ t_list* getPacket(int socket_cliente)
 }
 
 
-void iniciarServerProceso(char* ip, char* puerto, char* proceso) {
+void iniciarServerProceso(server_args_t* args) {
     //Iniciar servidor
-    int socketInterrupt = startServer(ip, puerto);
+    int socketInterrupt = startServer(args->ip, args->puerto);
     if(errno != 0) {
-        log_error(logger, "Error al iniciar servidor de %s", proceso);
+        log_error(logger, "Error al iniciar servidor de %s", args->proceso);
         exit(-1);
     }
-    log_info(logger, "Servidor de %s iniciado en: %s:%s", proceso, ip, puerto);
+    log_info(logger, "Servidor de %s iniciado en: %s:%s", args->proceso, args->ip, args->puerto);
 
     // ACA HACE FALTA USAR HILOS PARA QUE SE PUEDA CONECTAR A LOS DOS SERVIDORES AL MISMO TIEMPO
     //Esperar a que se conecte el Kernel por Interrupt
-    log_info(logger, "Esperando al cliente por %s", proceso);
+    log_info(logger, "Esperando al cliente por %s", args->proceso);
     int socketKernel = waitClient(socketInterrupt);
     if(errno == 0) {
-        log_error(logger, "Error al conectar al cliente por %s", proceso);
+        log_error(logger, "Error al conectar al cliente por %s", args->proceso);
         exit(-1);
     }
 }
