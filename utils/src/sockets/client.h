@@ -12,13 +12,18 @@
 #include<sys/socket.h>
 #include<netdb.h>
 #include<string.h>
-#include<commons/log.h>
+#include <commons/log.h>
+#include "server.h"
+#include "utils/logger.h"
+#include <errno.h>
+#include "sockets/conexiontad.h"
 
-typedef enum
+
+/*typedef enum
 {
     MENSAJE,
     PAQUETE
-}op_code;
+}op_code;*/
 
 typedef struct
 {
@@ -32,8 +37,6 @@ typedef struct
     t_buffer* buffer;
 } t_paquete;
 
-
-
 int connectToServer(char* ip, char* puerto);
 void disconnect(int socket_cliente);
 
@@ -43,5 +46,6 @@ t_paquete* packetCreate(void);
 void addToPacket(t_paquete* paquete, void* valor, int tamanio);
 void sendPacket(t_paquete* paquete, int socket_cliente);
 void freePacket(t_paquete* paquete);
+int conectarA(conexionArgsT * args);
 
 #endif //TP_2024_1C_GRUPO_CLIENT_H

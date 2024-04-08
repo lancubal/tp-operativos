@@ -3,11 +3,8 @@
 //
 
 #include "client.h"
-#include <errno.h>
 
-
-void* serializar_paquete(t_paquete* paquete, int bytes)
-{
+void* serializar_paquete(t_paquete* paquete, int bytes) {
     void * magic = malloc(bytes);
     int desplazamiento = 0;
 
@@ -40,9 +37,11 @@ int connectToServer(char *ip, char* puerto)
 
 
     // Ahora que tenemos el socket, vamos a conectarlo
-    connect(socket_cliente, server_info->ai_addr, server_info->ai_addrlen) == -1 ?
-    printf("No se pudo conectar al servidor: %d errno\n", errno) : printf("Servidor conectado\n");
-
+    if(connect(socket_cliente, server_info->ai_addr, server_info->ai_addrlen) != 0)
+    {
+        log_error(logger, "No se pudo conectar al servidor: %d errno\n", errno);
+        return -1;
+    }
 
     freeaddrinfo(server_info);
 
@@ -115,5 +114,16 @@ void freePacket(t_paquete* paquete)
     free(paquete->buffer->stream);
     free(paquete->buffer);
     free(paquete);
+}
+
+
+int conectarA(conexionArgsT * args){
+    int socket_cliente = connectToServer(args->ip, args->puerto);
+    if(errno != 0) {
+        log_error(logger, "Error al conectar a %s", args->proceso);
+        exit(-1);
+    }
+    destroyConexionArgs(args);
+    return socket_cliente;
 }
 
