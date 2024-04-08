@@ -9,7 +9,7 @@ int startServer(char* ip, char* puerto)
 
     int socket_servidor;
 
-    struct addrinfo hints, *servinfo, *p;
+    struct addrinfo hints, *servinfo;
 
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
@@ -121,22 +121,25 @@ t_list* getPacket(int socket_cliente)
     return valores;
 }
 
-
-void iniciarServerProceso(server_args_t* args) {
+int iniciarServerProceso(conexionArgsT* args) {
     //Iniciar servidor
-    int socketInterrupt = startServer(args->ip, args->puerto);
+    int socketServidor = startServer(args->ip, args->puerto);
     if(errno != 0) {
         log_error(logger, "Error al iniciar servidor de %s", args->proceso);
         exit(-1);
     }
     log_info(logger, "Servidor de %s iniciado en: %s:%s", args->proceso, args->ip, args->puerto);
 
-    // ACA HACE FALTA USAR HILOS PARA QUE SE PUEDA CONECTAR A LOS DOS SERVIDORES AL MISMO TIEMPO
-    //Esperar a que se conecte el Kernel por Interrupt
+    //Esperar a que se conecte el cliente
     log_info(logger, "Esperando al cliente por %s", args->proceso);
-    int socketKernel = waitClient(socketInterrupt);
+    int socketCliente = waitClient(socketServidor);
     if(errno == 0) {
         log_error(logger, "Error al conectar al cliente por %s", args->proceso);
         exit(-1);
     }
+    destroyConexionArgs(args);
+    return socketCliente;
 }
+
+
+
