@@ -116,11 +116,14 @@ void freePacket(t_paquete* paquete)
     free(paquete);
 }
 
-int conectarA(char* ip, char* puerto, char* nombreProceso){
-    int socket_cliente = connectToServer(ip, puerto);
+
+int conectarA(conexionArgsT * args){
+    int socket_cliente = connectToServer(args->ip, args->puerto);
     if(errno != 0) {
-        log_error(logger, "Error al conectar a %s", nombreProceso);
+        log_error(logger, "Error al conectar a %s", args->proceso);
         exit(-1);
     }
+    destroyConexionArgs(args);
     return socket_cliente;
 }
+
