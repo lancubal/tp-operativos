@@ -18,41 +18,6 @@ void* serializar_paquete(t_paquete* paquete, int bytes) {
     return magic;
 }
 
-int connectToServer(char *ip, char* puerto)
-{
-    struct addrinfo hints;
-    struct addrinfo *server_info;
-
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_PASSIVE;
-
-    getaddrinfo(ip, puerto, &hints, &server_info);
-
-    // Ahora vamos a crear el socket.
-    int socket_cliente = socket(server_info->ai_family,
-                                server_info->ai_socktype,
-                                server_info->ai_protocol);
-
-
-    // Ahora que tenemos el socket, vamos a conectarlo
-    if(connect(socket_cliente, server_info->ai_addr, server_info->ai_addrlen) != 0)
-    {
-        log_error(logger, "No se pudo conectar al servidor: %d errno\n", errno);
-        return -1;
-    }
-
-    freeaddrinfo(server_info);
-
-    return socket_cliente;
-}
-
-void disconnect(int socket_cliente)
-{
-    close(socket_cliente);
-}
-
 void sendMessage(char* mensaje, int socket_cliente)
 {
     t_paquete* paquete = malloc(sizeof(t_paquete));
@@ -116,14 +81,44 @@ void freePacket(t_paquete* paquete)
     free(paquete);
 }
 
+int connectToServer(char *ip, char* puerto)
+{
+    struct addrinfo hints;
+    struct addrinfo *server_info;
 
-int conectarA(conexionArgsT * args){
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE;
+
+    getaddrinfo(ip, puerto, &hints, &server_info);
+
+    // Ahora vamos a crear el socket.
+    int socket_cliente = socket(server_info->ai_family,
+                                server_info->ai_socktype,
+                                server_info->ai_protocol);
+
+    // Ahora que tenemos el socket, vamos a conectarlo
+    connect(socket_cliente, server_info->ai_addr, server_info->ai_addrlen);
+
+    freeaddrinfo(server_info);
+
+    return socket_cliente;
+}
+
+void* conectarA(conexionArgsT * args){
     int socket_cliente = connectToServer(args->ip, args->puerto);
     if(errno != 0) {
-        log_error(logger, "Error al conectar a %s", args->proceso);
+        log_error(logger, "Error al conectar a %s errno %d", args->proceso, errno);
         exit(-1);
     }
+    log_info(logger, "Conectado a %s", args->proceso);
     destroyConexionArgs(args);
-    return socket_cliente;
+    pthread_exit((void*)(intptr_t) socket_cliente);
+}
+
+void disconnectClient(int socketCliente)
+{
+    close(socketCliente);
 }
 

@@ -28,13 +28,15 @@ typedef enum
     PAQUETE
 }op_code;
 
-int startServer(char* ip, char* puerto);
-int waitClient(int);
+
 
 void* getBuffer(int*, int);
 t_list* getPacket(int);
 void getMessage(int);
 int getOp(int);
-int iniciarServerProceso(conexionArgsT* args);
+int startServer(char* ip, char*);
+int waitClient(int, char*);
+void* iniciarServerProceso(conexionArgsT*);
+void disconnectServer(int);
 
 #endif //TP_2024_1C_GRUPO_SERVER_H
