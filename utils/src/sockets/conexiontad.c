@@ -4,15 +4,20 @@
 
 #include "conexiontad.h"
 
-void destroyConexionArgs(conexionArgsT * args) {
+
+void destroyClientArgs(ConectarArgsT* args) {
     free(args);
 }
 
-conexionArgsT * createConexionArgs(char* ip, char* puerto, char* proceso) {
-    conexionArgsT* args = malloc(sizeof(conexionArgsT));
-    args->ip = ip;
+
+ConectarArgsT * createClientArgs(char* ip, char* puerto, char* proceso, int socketClient) {
+    ConectarArgsT* args = malloc(sizeof(ConectarArgsT));
+    args->serverIP = ip;
     args->puerto = puerto;
     args->proceso = proceso;
+    args->socketClient = socketClient;
     return args;
 }
+
+
 

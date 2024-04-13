@@ -44,7 +44,7 @@ void addToPacket(t_paquete*, void*, int);
 void sendPacket(t_paquete*, int);
 void freePacket(t_paquete*);
 int connectToServer(char*, char*);
-void* conectarA(conexionArgsT*);
+void* conectarA(ConectarArgsT*);
 void disconnectClient(int);
 
 #endif //TP_2024_1C_GRUPO_CLIENT_H

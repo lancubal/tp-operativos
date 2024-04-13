@@ -106,14 +106,14 @@ int connectToServer(char *ip, char* puerto)
     return socket_cliente;
 }
 
-void* conectarA(conexionArgsT * args){
-    int socket_cliente = connectToServer(args->ip, args->puerto);
+void* conectarA(ConectarArgsT  *args){
+    int socket_cliente = connectToServer(args->serverIP, args->puerto);
     if(errno != 0) {
         log_error(logger, "Error al conectar a %s errno %d", args->proceso, errno);
         exit(-1);
     }
     log_info(logger, "Conectado a %s", args->proceso);
-    destroyConexionArgs(args);
+
     pthread_exit((void*)(intptr_t) socket_cliente);
 }
 

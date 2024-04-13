@@ -8,13 +8,15 @@
 #include <stdlib.h>
 
 typedef struct {
-    char* ip;
+    char* serverIP;
     char* puerto;
     char* proceso;
-} conexionArgsT;
+    int socketClient;
+} ConectarArgsT;
 
-conexionArgsT * createConexionArgs(char* ip, char* puerto, char* proceso);
-void destroyConexionArgs(conexionArgsT* args);
+ConectarArgsT* createConectarArgs(char* ip, char* puerto, char* proceso, int socketClient);
+
+void destroyClientArgs(ConectarArgsT* args);
 
 
 #endif //TP_2024_1C_GRUPO_CONEXIONTAD_H
