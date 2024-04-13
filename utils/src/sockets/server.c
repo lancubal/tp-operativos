@@ -107,33 +107,29 @@ int startServer(char* ip, char* puerto)
     return socket_servidor;
 }
 
-int waitClient(int socket_servidor, char* proceso)
+void* waitClient(int socketServer)
 {
     // Aceptamos un nuevo cliente
-    int socket_cliente = accept(socket_servidor, NULL, NULL);
+    int socketCliente = accept(socketServer, NULL, NULL);
     if(errno != 0) {
-        log_error(logger, "Error al conectar al cliente por %s errno %d", proceso, errno);
+        log_error(logger, "El cliente no se pudo conectar por: errno %d", errno);
         exit(-1);
     }
-    log_info(logger, "Se conecto un proceso a %s!", proceso);
+    log_info(logger, "Se conecto un cliente");
 
-    return socket_cliente;
+    pthread_exit((void*)(intptr_t) socketCliente); //paso int a intptr_t para que no tire warning
 }
 
-void* iniciarServerProceso(conexionArgsT* args) {
+int iniciarServerProceso(char* ip, char* puerto, char* proceso) {
     //Iniciar servidor
-    int socketServidor = startServer(args->ip, args->puerto);
+    int socketServidor = startServer(ip, puerto);
     if(errno != 0) {
-        log_error(logger, "Error al iniciar servidor de %s", args->proceso);
+        log_error(logger, "Error al iniciar servidor de %s", proceso);
         exit(-1);
     }
-    log_info(logger, "Servidor de %s iniciado en: %s:%s", args->proceso, args->ip, args->puerto);
+    log_info(logger, "Servidor de %s iniciado en: %s:%s", proceso, ip, puerto);
 
-    //Esperar a que se conecte el cliente
-    log_info(logger, "Esperando al cliente por %s", args->proceso);
-    int socketCliente = waitClient(socketServidor, args->proceso);
-    destroyConexionArgs(args);
-    pthread_exit((void*)(intptr_t)socketCliente); //paso int a intptr_t para que no tire warning
+    return socketServidor;
 }
 
 void disconnectServer(int socketServidor)

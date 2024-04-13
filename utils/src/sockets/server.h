@@ -35,8 +35,8 @@ t_list* getPacket(int);
 void getMessage(int);
 int getOp(int);
 int startServer(char* ip, char*);
-int waitClient(int, char*);
-void* iniciarServerProceso(conexionArgsT*);
+void* waitClient(int socketServer);
+int iniciarServerProceso(char* ip, char* puerto, char* proceso);
 void disconnectServer(int);
 
 #endif //TP_2024_1C_GRUPO_SERVER_H
