@@ -1,8 +1,7 @@
-#include <stdlib.h>
 #include <stdio.h>
 #include <utils/config.h>
-#include <sockets/server.h>
 #include <memoria_config.h>
+#include <memoria_conexion.h>
 
 t_log *logger;
 
@@ -21,26 +20,8 @@ int main(int argc, char* argv[]) {
     //Obtener datos de configuracion
     memoria_config_t* memoriaConfig = memoriaConfigLoad(argv[1]);
 
-    //Iniciar servidor de Memoria server
-    int socketMemoria = iniciarServerProceso(memoriaConfig->ipMemoria, memoriaConfig->puertoEscucha, "Memoria");
-
-    //Se crean los tad para recibir al CPU
-    pthread_t cpuClientTH;
-    //Se crea el hilo para recibir al CPU
-    pthread_create(&cpuClientTH, NULL, (void*) waitClient, (void*) socketMemoria);
-
-    //Se crea el tad para recibir al Kernel
-    pthread_t kernelClientTH;
-    //Se crea el hilo para recibir al Kernel
-    pthread_create(&kernelClientTH, NULL, (void*) waitClient, (void*) socketMemoria);
-
-    //Se inicia el hilo para recibir al CPU
-    int socketCPU;
-    int socketKernel;
-    log_info(logger, "Esperando al cliente: CPU");
-    log_info(logger, "Esperando al cliente: Kernel");
-    pthread_join(cpuClientTH, (void*) &socketCPU);
-    pthread_join(kernelClientTH, (void*) &socketKernel);
+    //Iniciar conexiones
+    iniciarConexiones(memoriaConfig);
 
     //Finalizar
     //disconnectServer(socketCPU);
