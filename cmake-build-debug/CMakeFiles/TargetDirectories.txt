@@ -1,0 +1,3 @@
+/home/utnso/tp-2024-1c-grupo/cmake-build-debug/CMakeFiles/tp_2024_1c_grupo.dir
+/home/utnso/tp-2024-1c-grupo/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/utnso/tp-2024-1c-grupo/cmake-build-debug/CMakeFiles/rebuild_cache.dir

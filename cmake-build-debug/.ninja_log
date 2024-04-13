@@ -1,0 +1,11 @@
+# ninja log v5
+75	108	1712341024445684598	CMakeFiles/tp_2024_1c_grupo.dir/utils/src/utils/module.c.o	f5f72f1349bde734
+0	28	1712596495601521897	build.ninja	169b03a7382313b8
+1	29	1712341024369684598	CMakeFiles/tp_2024_1c_grupo.dir/cpu/src/main.c.o	f548a0519c39dfba
+33	75	1712341024413684598	CMakeFiles/tp_2024_1c_grupo.dir/utils/src/utils/config.c.o	4174638808a780f6
+29	89	1712341024425684598	CMakeFiles/tp_2024_1c_grupo.dir/utils/src/sockets/client.c.o	c7ee9c0aec1ff79f
+69	113	1712341024453684597	CMakeFiles/tp_2024_1c_grupo.dir/utils/src/utils/logger.c.o	2ad11e9dd8eb2775
+3	69	1712341024405684598	CMakeFiles/tp_2024_1c_grupo.dir/kernel/src/main.c.o	70da919c2ba128b
+32	87	1712341024425684598	CMakeFiles/tp_2024_1c_grupo.dir/utils/src/sockets/server.c.o	60124b4b4b25d343
+4	33	1712341024369684598	CMakeFiles/tp_2024_1c_grupo.dir/memoria/src/main.c.o	84e1a9904a2158a7
+3	32	1712341024369684598	CMakeFiles/tp_2024_1c_grupo.dir/entradasalida/src/main.c.o	5d71fbd03a1dd627

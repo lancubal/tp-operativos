@@ -4,70 +4,6 @@
 
 #include "server.h"
 
-int startServer(char* ip, char* puerto)
-{
-
-    int socket_servidor;
-
-    struct addrinfo hints, *servinfo;
-
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_PASSIVE;
-
-    getaddrinfo(ip, puerto, &hints, &servinfo);
-    if(getaddrinfo(ip, puerto, &hints, &servinfo) != 0)
-    {
-        log_error(logger, "Error en getaddrinfo: %d\n", errno);
-        return -1;
-    }
-
-    // Creamos el socket de escucha del servidor
-    socket_servidor = socket(servinfo->ai_family,
-                             servinfo->ai_socktype,
-                             servinfo->ai_protocol);
-    if(socket_servidor == -1)
-    {
-        log_error(logger, "Error al crear el socket: %d\n", errno);
-        return -1;
-    }
-
-    // Asociamos el socket a un puerto
-    if(bind(socket_servidor, servinfo->ai_addr, servinfo->ai_addrlen) != 0)
-    {
-        log_error(logger, "Error al bindear el socket\n");
-        close(socket_servidor);
-        return -1;
-    }
-
-    // Escuchamos las conexiones entrantes
-    if(listen(socket_servidor, SOMAXCONN) != 0)
-    {
-        log_error(logger, "Error al escuchar\n");
-        close(socket_servidor);
-        return -1;
-    }
-
-    freeaddrinfo(servinfo);
-
-    return socket_servidor;
-}
-
-int waitClient(int socket_servidor)
-{
-    // Aceptamos un nuevo cliente
-    int socket_cliente = accept(socket_servidor, NULL, NULL);
-    if(socket_cliente != 0)
-    {
-        log_error(logger, "Error al aceptar un cliente\n");
-        return -1;
-    }
-    log_info(logger, "Se conecto un cliente!");
-
-    return socket_cliente;
-}
-
 int getOp(int socket_cliente)
 {
     int cod_op;
@@ -121,25 +57,83 @@ t_list* getPacket(int socket_cliente)
     return valores;
 }
 
-int iniciarServerProceso(conexionArgsT* args) {
-    //Iniciar servidor
-    int socketServidor = startServer(args->ip, args->puerto);
-    if(errno != 0) {
-        log_error(logger, "Error al iniciar servidor de %s", args->proceso);
-        exit(-1);
-    }
-    log_info(logger, "Servidor de %s iniciado en: %s:%s", args->proceso, args->ip, args->puerto);
+int startServer(char* ip, char* puerto)
+{
 
-    //Esperar a que se conecte el cliente
-    log_info(logger, "Esperando al cliente por %s", args->proceso);
-    int socketCliente = waitClient(socketServidor);
-    if(errno == 0) {
-        log_error(logger, "Error al conectar al cliente por %s", args->proceso);
-        exit(-1);
+    int socket_servidor;
+
+    struct addrinfo hints, *servinfo;
+
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE;
+
+    getaddrinfo(ip, puerto, &hints, &servinfo);
+    if(getaddrinfo(ip, puerto, &hints, &servinfo) != 0)
+    {
+        log_error(logger, "Error en getaddrinfo: %d\n", errno);
+        return -1;
     }
-    destroyConexionArgs(args);
-    return socketCliente;
+
+    // Creamos el socket de escucha del servidor
+    socket_servidor = socket(servinfo->ai_family,
+                             servinfo->ai_socktype,
+                             servinfo->ai_protocol);
+    if(socket_servidor == -1)
+    {
+        log_error(logger, "Error al crear el socket: %d\n", errno);
+        return -1;
+    }
+
+    // Asociamos el socket a un puerto
+    if(bind(socket_servidor, servinfo->ai_addr, servinfo->ai_addrlen) != 0)
+    {
+        log_error(logger, "Error al bindear el socket, errno %d\n", errno);
+        close(socket_servidor);
+        return -1;
+    }
+
+    // Escuchamos las conexiones entrantes
+    if(listen(socket_servidor, SOMAXCONN) != 0)
+    {
+        log_error(logger, "Error al escuchar\n");
+        close(socket_servidor);
+        return -1;
+    }
+
+    freeaddrinfo(servinfo);
+
+    return socket_servidor;
 }
 
+void* waitClient(int socketServer)
+{
+    // Aceptamos un nuevo cliente
+    int socketCliente = accept(socketServer, NULL, NULL);
+    if(errno != 0) {
+        log_error(logger, "El cliente no se pudo conectar por: errno %d", errno);
+        exit(-1);
+    }
+    log_info(logger, "Se conecto un cliente");
 
+    pthread_exit((void*)(intptr_t) socketCliente); //paso int a intptr_t para que no tire warning
+}
+
+int iniciarServerProceso(char* ip, char* puerto, char* proceso) {
+    //Iniciar servidor
+    int socketServidor = startServer(ip, puerto);
+    if(errno != 0) {
+        log_error(logger, "Error al iniciar servidor de %s", proceso);
+        exit(-1);
+    }
+    log_info(logger, "Servidor de %s iniciado en: %s:%s", proceso, ip, puerto);
+
+    return socketServidor;
+}
+
+void disconnectServer(int socketServidor)
+{
+    close(socketServidor);
+}
 

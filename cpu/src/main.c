@@ -7,15 +7,15 @@
 t_log* logger;
 
 int main(int argc, char* argv[]) {
+    //Iniciar logger
+    logger = loggerCreate();
+    log_info(logger, "Iniciando CPU");
+
     //Verificar que haya un archivo de configuración
     if (argc < 2) {
         log_error(logger, "No se ha especificado un archivo de configuración");
         return 1;
     }
-
-    //Iniciar logger
-    logger = loggerCreate();
-    log_info(logger, "Iniciando CPU");
 
     //Obtener datos de configuracion
     cpu_config_t* cpuConfig = cpuConfigLoad(argv[1]);
@@ -34,20 +34,24 @@ int main(int argc, char* argv[]) {
     //Se crea el hilo de Interrupt
     pthread_create(&interruptServer, NULL, (void*) iniciarServerProceso, (void*) interruptServerArgs);
 
-    //Se crea el tad para el hilo de Memoria
-    pthread_t memoriaServer;
+    //Se crea el tad para el hilo de conexion a Memoria
+    pthread_t conectarAMemoria;
     //Se asignan los argumentos para el hilo de Memoria
     conexionArgsT* memoriaServerArgs = createConexionArgs(cpuConfig->ipMemoria, cpuConfig->puertoMemoria, "Memoria");
 
     //Se crea el hilo de Memoria
-    pthread_create(&memoriaServer, NULL, (void*) conectarA, (void*) memoriaServerArgs);
+    pthread_create(&conectarAMemoria, NULL, (void*) conectarA, (void*) memoriaServerArgs);
 
     //Se inician los hilos de las conexiones
-    pthread_join(interruptServer, NULL);
-    pthread_join(dispatchServer, NULL);
-    pthread_join(memoriaServer, NULL);
+    int socketInterruptCliente;
+    pthread_join(interruptServer, (void*) &socketInterruptCliente);
+    int socketDispatchCliente;
+    pthread_join(dispatchServer, (void*) &socketDispatchCliente);
+    pthread_join(conectarAMemoria, NULL);
 
     //Finalizar
+    disconnectServer(socketInterruptCliente);
+    disconnectServer(socketDispatchCliente);
     log_destroy(logger);
     return 0;
 }
