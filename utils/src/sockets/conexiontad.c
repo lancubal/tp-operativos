@@ -10,12 +10,11 @@ void destroyClientArgs(ConectarArgsT* args) {
 }
 
 
-ConectarArgsT * createClientArgs(char* ip, char* puerto, char* proceso, int socketClient) {
+ConectarArgsT * createConectarArgs(char* ip, char* puerto, char* proceso) {
     ConectarArgsT* args = malloc(sizeof(ConectarArgsT));
     args->serverIP = ip;
     args->puerto = puerto;
     args->proceso = proceso;
-    args->socketClient = socketClient;
     return args;
 }
 

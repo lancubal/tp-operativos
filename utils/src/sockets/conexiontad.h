@@ -11,10 +11,9 @@ typedef struct {
     char* serverIP;
     char* puerto;
     char* proceso;
-    int socketClient;
 } ConectarArgsT;
 
-ConectarArgsT* createConectarArgs(char* ip, char* puerto, char* proceso, int socketClient);
+ConectarArgsT* createConectarArgs(char* ip, char* puerto, char* proceso);
 
 void destroyClientArgs(ConectarArgsT* args);
 
