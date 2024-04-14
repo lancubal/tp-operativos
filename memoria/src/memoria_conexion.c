@@ -13,12 +13,12 @@ void iniciarConexiones(memoria_config_t* memoriaConfig) {
     //Se crean los tad para recibir al CPU
     pthread_t cpuClientTH;
     //Se crea el hilo para recibir al CPU
-    pthread_create(&cpuClientTH, NULL, (void*) waitClient, (void*) socketMemoria);
+    pthread_create(&cpuClientTH, NULL, (void*) waitClient, (void*) &socketMemoria);
 
     //Se crea el tad para recibir al Kernel
     pthread_t kernelClientTH;
     //Se crea el hilo para recibir al Kernel
-    pthread_create(&kernelClientTH, NULL, (void*) waitClient, (void*) socketMemoria);
+    pthread_create(&kernelClientTH, NULL, (void*) waitClient, (void*) &socketMemoria);
 
     //Se inicia el hilo para recibir al CPU
     int socketCPU;
