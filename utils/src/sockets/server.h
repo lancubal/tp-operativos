@@ -35,7 +35,7 @@ t_list* getPacket(int);
 void getMessage(int);
 int getOp(int);
 int startServer(char* ip, char*);
-void* waitClient(int socketServer);
+void* waitClient(const int* socketServer);
 int iniciarServerProceso(char* ip, char* puerto, char* proceso);
 void disconnectServer(int);
 

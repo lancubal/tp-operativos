@@ -107,10 +107,10 @@ int startServer(char* ip, char* puerto)
     return socket_servidor;
 }
 
-void* waitClient(int socketServer)
+void* waitClient(const int* socketServer)
 {
     // Aceptamos un nuevo cliente
-    int socketCliente = accept(socketServer, NULL, NULL);
+    int socketCliente = accept(*socketServer, NULL, NULL);
     if(errno != 0) {
         log_error(logger, "El cliente no se pudo conectar por: errno %d", errno);
         exit(-1);
