@@ -11,7 +11,7 @@ void iniciarConexiones(kernel_config_t* kernelConfig) {
     //Se inicia el servidor de Kernel
     int socketKernel = iniciarServerProceso(kernelConfig->ipKernel, kernelConfig->puertoEscucha, "Kernel");
     //Se crea el hilo de Kernel server
-    pthread_create(&kernelServer, NULL, (void*) iniciarServerProceso, (void*) &socketKernel);
+    pthread_create(&kernelServer, NULL, (void*) waitClient, (void*) &socketKernel);
 
     //Se crea el tad para el hilo de conexion a Memoria
     pthread_t conectarAMemoria;

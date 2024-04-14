@@ -10,14 +10,14 @@ void iniciarConexiones(cpu_config_t* cpuConfig) {
     //Se crea el servidor de Dispatch
     int socketDispatchServer = iniciarServerProceso(cpuConfig->ipCPU, cpuConfig->puertoEscuchaDispatch, "Dispatch");
     //Se crea el hilo de Dispatch
-    pthread_create(&dispatchServer, NULL, (void*) iniciarServerProceso, (void*) &socketDispatchServer);
+    pthread_create(&dispatchServer, NULL, (void*) waitClient, (void*) &socketDispatchServer);
 
     //Se crea el tad para el hilo de Interrupt
     pthread_t interruptServer;
     //Se crea el servidor de Interrupt
     int socketInterruptServer = iniciarServerProceso(cpuConfig->ipCPU, cpuConfig->puertoEscuchaInterrupt, "Interrupt");
     //Se crea el hilo de Interrupt
-    pthread_create(&interruptServer, NULL, (void*) iniciarServerProceso, (void*) &socketInterruptServer);
+    pthread_create(&interruptServer, NULL, (void*) waitClient, (void*) &socketInterruptServer);
 
     //Se crea el tad para el hilo de conexion a Memoria
     pthread_t conectarAMemoria;
