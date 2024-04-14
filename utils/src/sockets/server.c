@@ -70,7 +70,7 @@ int startServer(char* ip, char* puerto)
     hints.ai_flags = AI_PASSIVE;
 
     getaddrinfo(ip, puerto, &hints, &servinfo);
-    if(getaddrinfo(ip, puerto, &hints, &servinfo) != 0)
+    if(errno != 0)
     {
         log_error(logger, "Error en getaddrinfo: %d\n", errno);
         return -1;
