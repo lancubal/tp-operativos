@@ -4,59 +4,6 @@
 
 #include "server.h"
 
-int getOp(int socket_cliente)
-{
-    int cod_op;
-    if(recv(socket_cliente, &cod_op, sizeof(int), MSG_WAITALL) > 0)
-        return cod_op;
-    else
-    {
-        close(socket_cliente);
-        return -1;
-    }
-}
-
-void* getBuffer(int* size, int socket_cliente)
-{
-    void * buffer;
-
-    recv(socket_cliente, size, sizeof(int), MSG_WAITALL);
-    buffer = malloc(*size);
-    recv(socket_cliente, buffer, *size, MSG_WAITALL);
-
-    return buffer;
-}
-
-void getMessage(int socket_cliente)
-{
-    int size;
-    char* buffer = getBuffer(&size, socket_cliente);
-    log_info(logger, "Me llego el mensaje %s", buffer);
-    free(buffer);
-}
-
-t_list* getPacket(int socket_cliente)
-{
-    int size;
-    int desplazamiento = 0;
-    void * buffer;
-    t_list* valores = list_create();
-    int tamanio;
-
-    buffer = getBuffer(&size, socket_cliente);
-    while(desplazamiento < size)
-    {
-        memcpy(&tamanio, buffer + desplazamiento, sizeof(int));
-        desplazamiento+=sizeof(int);
-        char* valor = malloc(tamanio);
-        memcpy(valor, buffer+desplazamiento, tamanio);
-        desplazamiento+=tamanio;
-        list_add(valores, valor);
-    }
-    free(buffer);
-    return valores;
-}
-
 int startServer(char* ip, char* puerto)
 {
 
