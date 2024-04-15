@@ -13,6 +13,15 @@ typedef struct {
     char* proceso;
 } ConectarArgsT;
 
+typedef struct {
+    int memoriaSocket;
+    int kernelSocket;
+    int socketCPU;
+    int interruptSocket;
+    int dispatchSocket;
+} socketsT;
+
+socketsT* createSocketsT(int memoriaSocket, int kernelSocket, int interruptSocket, int dispatchSocket);
 ConectarArgsT* createConectarArgs(char* ip, char* puerto, char* proceso);
 
 void destroyClientArgs(ConectarArgsT* args);
