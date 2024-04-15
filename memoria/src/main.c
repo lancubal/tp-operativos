@@ -3,6 +3,8 @@
 #include <memoria_config.h>
 #include <memoria_conexion.h>
 
+#include "sockets/networking.h"
+
 t_log *logger;
 
 int main(int argc, char* argv[]) {
@@ -21,10 +23,18 @@ int main(int argc, char* argv[]) {
     memoria_config_t* memoriaConfig = memoriaConfigLoad(argv[1]);
 
     //Iniciar conexiones
-    iniciarConexiones(memoriaConfig);
+    socketsT* sockets = iniciarConexiones(memoriaConfig);
+    // hilo para getMessage
+    pthread_t getMessageTH;
+    pthread_create(&getMessageTH, NULL, (void*) getMessage, (void*) &sockets->socketCPU);
+    char *mensaje = malloc(sizeof (char) * 100);
+    pthread_join(getMessageTH, (void*) mensaje);
+    log_info(logger, "Mensaje recibido de CPU: %s", mensaje);
+    sendMessage("Hola CPU", sockets->socketCPU);
 
     //Finalizar
-    //disconnectServer(socketCPU);
+    //close(sockets->memoriaSocket);
+    disconnectServer(sockets->memoriaSocket);
     log_destroy(logger);
     return 0;
 }

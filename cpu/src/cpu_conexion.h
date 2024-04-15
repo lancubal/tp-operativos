@@ -10,6 +10,6 @@
 #include <cpu_config.h>
 #include <pthread.h>
 
-void iniciarConexiones(cpu_config_t* cpuConfig);
+socketsT* iniciarConexiones(cpu_config_t* cpuConfig);
 
 #endif //TP_2024_1C_GRUPO_CPU_CONEXION_H

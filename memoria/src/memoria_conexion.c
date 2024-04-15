@@ -4,7 +4,7 @@
 
 #include "memoria_conexion.h"
 
-void iniciarConexiones(memoria_config_t* memoriaConfig) {
+socketsT* iniciarConexiones(memoria_config_t* memoriaConfig) {
 
 
     //Iniciar servidor de Memoria server
@@ -27,4 +27,6 @@ void iniciarConexiones(memoria_config_t* memoriaConfig) {
     log_info(logger, "Esperando al cliente: Kernel");
     pthread_join(cpuClientTH, (void*) &socketCPU);
     pthread_join(kernelClientTH, (void*) &socketKernel);
+
+    return createSocketsT(socketMemoria, socketCPU, socketKernel, 0);
 }

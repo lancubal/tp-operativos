@@ -8,7 +8,8 @@
 #include <pthread.h>
 #include <sockets/server.h>
 #include <memoria_config.h>
+#include "sockets/conexiontad.h"
 
-void iniciarConexiones(memoria_config_t* memoriaConfig);
+socketsT* iniciarConexiones(memoria_config_t* memoriaConfig);
 
 #endif //TP_2024_1C_GRUPO_MEMORIA_CONEXION_H

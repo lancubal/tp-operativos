@@ -1,6 +1,9 @@
 #include <cpu_config.h>
 #include <commons/log.h>
 #include <cpu_conexion.h>
+#include <utils/module_tads.h>
+#include <sockets/conexiontad.h>
+#include <cpu_ciclo.h>
 
 t_log* logger;
 
@@ -19,7 +22,13 @@ int main(int argc, char* argv[]) {
     cpu_config_t* cpuConfig = cpuConfigLoad(argv[1]);
 
     //Iniciar conexiones
-    iniciarConexiones(cpuConfig);
+    socketsT* sockets = iniciarConexiones(cpuConfig);
+
+    //Pedir siguiente instruccion a la memoria
+    registroCPU* registro = malloc(sizeof(registroCPU));
+
+    char* instruccion = fetch(registro->PC, sockets->memoriaSocket);
+    log_info(logger, "Instruccion obtenida: %s", instruccion);
 
     //Finalizar
     log_destroy(logger);

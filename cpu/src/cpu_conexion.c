@@ -4,7 +4,7 @@
 
 #include "cpu_conexion.h"
 
-void iniciarConexiones(cpu_config_t* cpuConfig) {
+socketsT* iniciarConexiones(cpu_config_t* cpuConfig) {
     //Se crea el tad para el hilo de Dispatch
     pthread_t dispatchServer;
     //Se crea el servidor de Dispatch
@@ -31,5 +31,7 @@ void iniciarConexiones(cpu_config_t* cpuConfig) {
     pthread_join(interruptServer, (void*) &socketInterruptCliente);
     int socketDispatchCliente;
     pthread_join(dispatchServer, (void*) &socketDispatchCliente);
-    pthread_join(conectarAMemoria, NULL);
+    int socketMemoria;
+    pthread_join(conectarAMemoria, (void*) &socketMemoria);
+    return createSocketsT(socketMemoria, 0, socketInterruptCliente, socketDispatchCliente);
 }
