@@ -15,6 +15,8 @@ add_executable(tp_2024_1c_grupo
         utils/src/sockets/client.h
         utils/src/sockets/server.c
         utils/src/sockets/server.h
+        utils/src/sockets/protocol.c
+        utils/src/sockets/protocol.h
         utils/src/utils/config.c
         utils/src/utils/config.h
         utils/src/utils/logger.c

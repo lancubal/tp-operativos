@@ -3,6 +3,14 @@
         "signal.h": "c",
         "networking.h": "c",
         "conexiontad.h": "c",
-        "cpu_conexion.h": "c"
+        "cpu_conexion.h": "c",
+        "pthread.h": "c",
+        "protocol.h": "c",
+        "inttypes.h": "c",
+        "socket.h": "c",
+        "module_tads.h": "c",
+        "client.h": "c",
+        "server.h": "c",
+        "stdint.h": "c"
     }
 }

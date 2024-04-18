@@ -15,6 +15,7 @@
 
 int startServer(char* ip, char*);
 void* waitClient(const int*);
+int esperar_cliente(t_log* , const char* , int );
 int iniciarServerProceso(char*, char*, char*);
 void disconnectServer(int);
 

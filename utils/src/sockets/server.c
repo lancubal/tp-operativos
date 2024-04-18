@@ -67,6 +67,17 @@ void* waitClient(const int* socketServer)
     pthread_exit((void*)(intptr_t) socketCliente); //paso int a intptr_t para que no tire warning
 }
 
+int esperar_cliente(t_log* logger, const char* name, int socket_servidor) {
+    struct sockaddr_in dir_cliente;
+    socklen_t tam_direccion = sizeof(struct sockaddr_in);
+
+    int socket_cliente = accept(socket_servidor, (void*) &dir_cliente, &tam_direccion);
+
+    log_info(logger, "Cliente conectado (a %s)\n", name);
+
+    return socket_cliente;
+}
+
 int iniciarServerProceso(char* ip, char* puerto, char* proceso) {
     //Iniciar servidor
     int socketServidor = startServer(ip, puerto);

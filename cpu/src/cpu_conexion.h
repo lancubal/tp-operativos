@@ -5,11 +5,20 @@
 #ifndef TP_2024_1C_GRUPO_CPU_CONEXION_H
 #define TP_2024_1C_GRUPO_CPU_CONEXION_H
 
-#include <sockets/client.h>
-#include <sockets/server.h>
-#include <cpu_config.h>
-#include <pthread.h>
 
-socketsT* iniciarConexiones(cpu_config_t* cpuConfig);
+#include <cpu_config.h>
+#include <stdint.h>
+#include <string.h>
+#include <inttypes.h>
+#include <commons/log.h>
+#include <pthread.h>
+#include <sockets/server.h>
+#include "sockets/conexiontad.h"
+#include "sockets/protocol.h"
+
+//socketsT* iniciarConexiones(cpu_config_t* cpuConfig);
+int server_escuchar(t_log* logger, char* server_name, int*  server_socket);
+int phread_server_escuchar(void* server_socket);
+void procesar_conexion(void* void_args);
 
 #endif //TP_2024_1C_GRUPO_CPU_CONEXION_H
