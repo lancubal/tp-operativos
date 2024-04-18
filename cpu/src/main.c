@@ -4,10 +4,18 @@
 #include <utils/module_tads.h>
 #include <sockets/conexiontad.h>
 #include <cpu_ciclo.h>
+#include <signal.h>
+
+void sighandler(int s) {
+    log_destroy(logger);
+    // Agregar cualquier funcion luego de que el programa reciba la señal del "CTRL + C"
+    exit(0);
+}
 
 t_log* logger;
 
 int main(int argc, char* argv[]) {
+    signal(SIGINT, sighandler);
     //Iniciar logger
     logger = loggerCreate();
     log_info(logger, "Iniciando CPU");

@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "signal.h": "c",
+        "networking.h": "c",
+        "conexiontad.h": "c",
+        "cpu_conexion.h": "c"
+    }
+}
