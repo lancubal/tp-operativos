@@ -13,7 +13,6 @@
 #include "sockets/conexiontad.h"
 
 int connectToServer(char*, char*);
-void* conectarA(ConectarArgsT*);
 void disconnectClient(int);
 
 #endif //TP_2024_1C_GRUPO_CLIENT_H
