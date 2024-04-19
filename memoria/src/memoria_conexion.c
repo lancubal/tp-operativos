@@ -60,19 +60,19 @@ void procesar_conexion(void* void_args) {
                 log_info(logger, "debug");
                 break;
 
-            case MIRAR_NETFLIX:
+            case TEST:
             {
-                char* peli;
-                uint8_t pochoclos;
+                char* cadena;
+                uint8_t cant;
 
-                if (!recv_mirar_netflix(cliente_socket, &peli, &pochoclos)) {
-                    log_error(logger, "Fallo recibiendo MIRAR_NETFLIX");
+                if (!recv_test(cliente_socket, &cadena, &cant)) {
+                    log_error(logger, "Fallo recibiendo TEST");
                     break;
                 }
 
-                log_info(logger, "Mirando %s con %" PRIu8 " pochoclos.", peli, pochoclos);
+                log_info(logger, "Mirando %s con %" PRIu8 " cant.", cadena, cant);
 
-                free(peli);
+                free(cadena);
                 break;
             }
 

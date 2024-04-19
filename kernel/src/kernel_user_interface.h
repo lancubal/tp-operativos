@@ -8,6 +8,7 @@
 #include <commons/string.h>
 #include <readline/readline.h>
 #include "sockets/client.h"
+#include "sockets/protocol.h"
 
 void kernelUserInterfaceStart(socketsT *);
 

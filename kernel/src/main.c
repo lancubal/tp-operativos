@@ -27,6 +27,8 @@ int main(int argc, char* argv[]) {
     //Obtener datos de configuracion
     kernel_config_t * kernelConfig = kernelConfigLoad(argv[1]);
 
+
+    //Hacer un Thread por cada inicio de Server y conexion en un funcion USER INICIAR CONEXIONES
     sockets.kernelSocket = iniciarServerProceso(kernelConfig->ipKernel, kernelConfig->puertoEscucha, "Kernel Server");
     sockets.memoriaSocket = connectToServer(kernelConfig->ipMemoria,kernelConfig->puertoMemoria);
     sockets.dispatchSocket = connectToServer(kernelConfig->ipCPU,kernelConfig->puertoCPUDispatch);

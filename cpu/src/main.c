@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
     while (1)
     {
         scanf("%d", &a); // Esta para bloquear el programa
-        send_mirar_netflix(sockets.memoriaSocket, "Inception", 14);
+        send_test(sockets.memoriaSocket, "Perro", 14);
     }
     
 

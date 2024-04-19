@@ -11,19 +11,14 @@
 #include <stdlib.h>
 
 typedef enum {
-    APROBAR_OPERATIVOS,
-    MIRAR_NETFLIX,
+    TEST,
     DEBUG_CODE = 69,
     ERROR_OP = -1 
 }op_code_NUESTRO;
 
-///
 
-bool send_aprobar_operativos(int fd, uint8_t  nota1, uint8_t  nota2);
-bool recv_aprobar_operativos(int fd, uint8_t* nota1, uint8_t* nota2);
-
-bool send_mirar_netflix(int fd, char*  peli, uint8_t  cant_pochoclos);
-bool recv_mirar_netflix(int fd, char** peli, uint8_t* cant_pochoclos);
+bool send_test(int fd, char*  cadena, uint8_t  cant);
+bool recv_test(int fd, char** cadena, uint8_t* cant);
 
 bool send_debug(int fd);
 

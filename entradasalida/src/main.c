@@ -33,8 +33,8 @@ int main(int argc, char* argv[]) {
     while (1)
     {
         scanf("%d", &a); // Esta para bloquear el programa
-        send_mirar_netflix(sockets.memoriaSocket, "Inception", 14);
-        send_mirar_netflix(sockets.kernelSocket, "Inception", 14);
+        send_test(sockets.memoriaSocket, "Perro", 10);
+        send_test(sockets.kernelSocket, "Gato", 1);
     }
 
     //Finalizar
