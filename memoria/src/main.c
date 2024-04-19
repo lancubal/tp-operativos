@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
     //Iniciar conexiones
     //socketsT* sockets = iniciarConexiones(memoriaConfig);
     sockets.memoriaSocket = iniciarServerProceso(memoriaConfig->ipMemoria, memoriaConfig->puertoEscucha, "Memoria");
-    while (server_escuchar(logger, "Servidor Memoria",sockets.memoriaSocket ));
+    while (server_escuchar(logger, "Servidor Memoria",&sockets ));
 
 
 

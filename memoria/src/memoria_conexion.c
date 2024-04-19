@@ -92,8 +92,8 @@ void procesar_conexion(void* void_args) {
 }
 
 
-int server_escuchar(t_log* logger, char* server_name, int server_socket) {
-    int cliente_socket = esperar_cliente(logger, server_name, server_socket);
+int server_escuchar(t_log* logger, char* server_name, socketsT * socket) {
+    int cliente_socket = esperar_cliente(logger, server_name, socket->memoriaSocket);
     
 
     if (cliente_socket != -1) {
