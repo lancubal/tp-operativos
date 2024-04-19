@@ -1,9 +1,6 @@
 #include <cpu_config.h>
 #include <commons/log.h>
 #include <cpu_conexion.h>
-#include <utils/module_tads.h>
-#include <sockets/conexiontad.h>
-#include "sockets/client.h"
 #include <cpu_ciclo.h>
 #include <signal.h>
 
@@ -14,8 +11,8 @@ socketsT sockets;
 t_log* logger;
 
 int main(int argc, char* argv[]) {
+    //Manejar la señal ctrl+c
     signal(SIGINT, sighandler);
-    
 
     //Iniciar logger
     logger = loggerCreate();
@@ -29,8 +26,11 @@ int main(int argc, char* argv[]) {
 
     //Obtener datos de configuracion
     cpu_config_t* cpuConfig = cpuConfigLoad(argv[1]);
+
+    //Iniciar conexiones
     iniciarConexiones(cpuConfig,&sockets);
 
+    //Escuchar clientes
     pthread_t dispatch_thread;
     pthread_create(&dispatch_thread,NULL,(void *)phread_server_escuchar,&sockets.dispatchSocket);
     pthread_t interrupt_thread;

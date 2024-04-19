@@ -70,9 +70,8 @@ void procesar_conexion(void* void_args) {
 
 
 
-int server_escuchar(t_log* logger, char* server_name, int* server_socket) {
-    int cliente_socket = esperar_cliente(logger, server_name, *server_socket);
-    
+int server_escuchar(char* server_name, const int* server_socket) {
+    int cliente_socket = esperar_cliente(server_name, *server_socket);
 
     if (cliente_socket != -1) {
         pthread_t hilo;
@@ -89,12 +88,12 @@ int server_escuchar(t_log* logger, char* server_name, int* server_socket) {
 
 int phread_server_escuchar(void* server_socket){
 
-    while (server_escuchar(logger,"CPU",(int*)server_socket));
+    while (server_escuchar("CPU",(int*)server_socket));
     return -1;
 }
 
 
-void fin_conexion(t_log* logger, socketsT * sockets){
+void fin_conexion(socketsT * sockets){
     disconnectServer(sockets->dispatchSocket);
     disconnectServer(sockets->interruptSocket);
     disconnectClient(sockets->memoriaSocket);
