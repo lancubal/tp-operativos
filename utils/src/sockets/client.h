@@ -10,9 +10,17 @@
 #include <pthread.h>
 #include <errno.h>
 #include <utils/logger.h>
-#include "sockets/conexiontad.h"
+
+typedef struct {
+    int memoriaSocket;
+    int kernelSocket;
+    int socketCPU;
+    int interruptSocket;
+    int dispatchSocket;
+} socketsT;
 
 int connectToServer(char*, char*);
 void disconnectClient(int);
+extern socketsT sockets;
 
 #endif //TP_2024_1C_GRUPO_CLIENT_H

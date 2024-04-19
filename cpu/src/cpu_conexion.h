@@ -14,12 +14,11 @@
 #include <pthread.h>
 #include <sockets/server.h>
 #include <sockets/client.h>
-#include "sockets/conexiontad.h"
 #include "sockets/protocol.h"
 
-void iniciarConexiones(cpu_config_t* cpuConfig, socketsT * sockets);
+void iniciarConexiones(cpu_config_t* cpuConfig);
 int server_escuchar(char* server_name, const int*  server_socket);
 int phread_server_escuchar(void* server_socket);
 void procesar_conexion(void* void_args);
-void fin_conexion(socketsT * sockets);
+void fin_conexion();
 #endif //TP_2024_1C_GRUPO_CPU_CONEXION_H

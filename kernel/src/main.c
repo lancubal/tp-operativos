@@ -6,49 +6,56 @@
 #include <signal.h>
 
 
+// Definición de la función sighandler que se ejecutará cuando se reciba la señal SIGINT (CTRL + C)
 void sighandler(int s);
 
+// Declaración del logger que se utilizará para registrar los eventos del programa
 t_log *logger;
+
+// Declaración de la estructura socketsT que almacenará los sockets utilizados en el programa
 socketsT sockets;
 
+// Función principal del programa
 int main(int argc, char* argv[]) {
+    // Asignación de la función sighandler para manejar la señal SIGINT (CTRL + C)
     signal(SIGINT, sighandler);
 
-    //Iniciar logger
+    // Inicialización del logger
     logger = loggerCreate();
+    // Registro de un mensaje en el logger indicando que se está iniciando el kernel
     log_info(logger, "Iniciando kernel");
 
-    //Verificar que haya un archivo de configuración
+    // Verificación de que se haya especificado un archivo de configuración al ejecutar el programa
     if (argc < 2) {
+        // Si no se especificó un archivo de configuración, se registra un error en el logger y se termina el programa
         log_error(logger, "No se ha especificado un archivo de configuración");
         return 1;
     }
 
-    //Obtener datos de configuracion
+    // Carga de los datos de configuración desde el archivo especificado
     kernel_config_t * kernelConfig = kernelConfigLoad(argv[1]);
 
+    // Inicio de las conexiones utilizando los datos de configuración cargados
+    iniciarConexiones(kernelConfig);
 
-    //Hacer un Thread por cada inicio de Server y conexion en un funcion USER INICIAR CONEXIONES
-    iniciarConexiones(kernelConfig,&sockets);
-
-
+    // Creación de un nuevo hilo para escuchar conexiones entrantes
     pthread_t kernel_thread;
     pthread_create(&kernel_thread,NULL,(void *)phread_server_escuchar,&sockets.kernelSocket);
 
+    // Inicio de la interfaz de usuario del kernel
     kernelUserInterfaceStart(&sockets);
 
-    // int fin; // Mas adelante cambiarlo por socket de Kernel
-    // pthread_join(kernel_thread,(void*) &fin);  // Deberia recibir señal para cerrar el thread
-
-    //Finalizar
-    fin_conexion(logger,&sockets);
+    // Finalización de todas las conexiones y liberación de los recursos utilizados
+    fin_conexion();
+    // Cierre del hilo de escucha de conexiones
     close(kernel_thread);
     return 0;
 }
 
-
+// Función que se ejecutará cuando se reciba la señal SIGINT (CTRL + C)
 void sighandler(int s) {
-    // Agregar cualquier funcion luego de que el programa reciba la señal del "CTRL + C"
-    fin_conexion(logger,&sockets);
+    // Finalización de todas las conexiones y liberación de los recursos utilizados
+    fin_conexion();
+    // Terminación del programa
     exit(0);
 }
