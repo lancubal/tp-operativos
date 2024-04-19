@@ -43,24 +43,17 @@ int main(int argc, char* argv[]) {
     //Testing Send message
     int a;
 
-    scanf("%d", &a);
+    scanf("%d", &a); // Esta para bloquear el programa
     send_mirar_netflix(sockets.memoriaSocket, "Inception", 14);
 
 
-    scanf("%d", &a);
+    scanf("%d", &a); // Esta para bloquear el programa
 
 
     int fin; // Mas adelante cambiarlo por socket de Kernel
-    pthread_join(dispatch_thread,(void*) &fin);
-    pthread_join(interrupt_thread,(void*) &fin);
-    // //Iniciar conexiones
-    // socketsT* sockets = iniciarConexiones(cpuConfig);
-
-    // //Pedir siguiente instruccion a la memoria
-    // registroCPU* registro = malloc(sizeof(registroCPU));
-
-    // char* instruccion = fetch(registro->PC, sockets->memoriaSocket);
-    // log_info(logger, "Instruccion obtenida: %s", instruccion);
+    pthread_join(dispatch_thread,(void*) &fin);  // Deberia recibir señal para cerrar el thread
+    pthread_join(interrupt_thread,(void*) &fin); // Deberia recibir señal para cerrar el thread
+ 
 
     //Finalizar
     disconnectServer(sockets.dispatchSocket);
