@@ -32,14 +32,20 @@ int main(int argc, char* argv[]) {
     sockets.dispatchSocket = connectToServer(kernelConfig->ipCPU,kernelConfig->puertoCPUDispatch);
     sockets.interruptSocket = connectToServer(kernelConfig->ipCPU,kernelConfig->puertoCPUInterrupt);
 
+    pthread_t kernel_thread;
+    pthread_create(&kernel_thread,NULL,(void *)phread_server_escuchar,&sockets.kernelSocket);
+
     kernelUserInterfaceStart(&sockets);
 
+    int fin; // Mas adelante cambiarlo por socket de Kernel
+    pthread_join(kernel_thread,(void*) &fin);  // Deberia recibir señal para cerrar el thread
 
     //Finalizar
     disconnectServer(sockets.kernelSocket);
     disconnectClient(sockets.memoriaSocket);
     disconnectClient(sockets.dispatchSocket);
     disconnectClient(sockets.interruptSocket);
+    log_info(logger,"Terminado el Servidor Kernel");
     log_destroy(logger);
     return 0;
 }
@@ -50,7 +56,7 @@ void sighandler(int s) {
     disconnectClient(sockets.memoriaSocket);
     disconnectClient(sockets.dispatchSocket);
     disconnectClient(sockets.interruptSocket);
-    log_info(logger,"Terminado el Servidor CPU");
+    log_info(logger,"Terminado el Servidor Kernel");
     log_destroy(logger);
     // Agregar cualquier funcion luego de que el programa reciba la señal del "CTRL + C"
     exit(0);

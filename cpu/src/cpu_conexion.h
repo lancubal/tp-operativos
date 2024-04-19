@@ -16,7 +16,7 @@
 #include "sockets/conexiontad.h"
 #include "sockets/protocol.h"
 
-//socketsT* iniciarConexiones(cpu_config_t* cpuConfig);
+
 int server_escuchar(t_log* logger, char* server_name, int*  server_socket);
 int phread_server_escuchar(void* server_socket);
 void procesar_conexion(void* void_args);
