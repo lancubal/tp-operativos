@@ -14,6 +14,8 @@
         "stdint.h": "c",
         "logger.h": "c",
         "memoria_config.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "kernel_user_interface.h": "c",
+        "kernel_config.h": "c"
     }
 }

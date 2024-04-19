@@ -42,12 +42,13 @@ int main(int argc, char* argv[]) {
 
     //Testing Send message
     int a;
+    while (1)
+    {
+        scanf("%d", &a); // Esta para bloquear el programa
+        send_mirar_netflix(sockets.memoriaSocket, "Inception", 14);
+    }
+    
 
-    scanf("%d", &a); // Esta para bloquear el programa
-    send_mirar_netflix(sockets.memoriaSocket, "Inception", 14);
-
-
-    scanf("%d", &a); // Esta para bloquear el programa
 
 
     int fin; // Mas adelante cambiarlo por socket de Kernel
@@ -67,10 +68,10 @@ int main(int argc, char* argv[]) {
 
 void sighandler(int s) {
     // Agregar cualquier funcion luego de que el programa reciba la señal del "CTRL + C"
-    log_info(logger,"Terminado el Servidor CPU");
-    log_destroy(logger);
     disconnectServer(sockets.dispatchSocket);
     disconnectServer(sockets.interruptSocket);
     disconnectClient(sockets.memoriaSocket);
+    log_info(logger,"Terminado el Servidor CPU");
+    log_destroy(logger);
     exit(0);
 }

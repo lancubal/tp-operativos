@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
 
 void sighandler(int s) {
     // Agregar cualquier funcion luego de que el programa reciba la señal del "CTRL + C"
-    log_info(logger,"Terminado el Servidor Memoria");
+    log_info(logger,"DISCONNECT !!!");
     log_destroy(logger);
     disconnectServer(sockets.memoriaSocket);
     exit(0);

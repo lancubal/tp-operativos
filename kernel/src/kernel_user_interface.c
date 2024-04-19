@@ -4,7 +4,7 @@
 
 #include "kernel_user_interface.h"
 
-void kernelUserInterfaceStart() {
+void kernelUserInterfaceStart(socketsT * sockets) {
     while(true) {
         printf("1. Ejecutar Script de Operaciones\n");
         printf("2. Iniciar proceso\n");

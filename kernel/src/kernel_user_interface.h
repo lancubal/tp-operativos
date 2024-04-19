@@ -7,7 +7,8 @@
 
 #include <commons/string.h>
 #include <readline/readline.h>
+#include "sockets/client.h"
 
-void kernelUserInterfaceStart();
+void kernelUserInterfaceStart(socketsT *);
 
 #endif //TP_2024_1C_GRUPO_KERNEL_USER_INTERFACE_H

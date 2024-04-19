@@ -27,19 +27,30 @@ int main(int argc, char* argv[]) {
     //Obtener datos de configuracion
     kernel_config_t * kernelConfig = kernelConfigLoad(argv[1]);
 
-    //Iniciar conexiones
-    iniciarConexiones(kernelConfig);
+    sockets.kernelSocket = iniciarServerProceso(kernelConfig->ipKernel, kernelConfig->puertoEscucha, "Kernel Server");
+    sockets.memoriaSocket = connectToServer(kernelConfig->ipMemoria,kernelConfig->puertoMemoria);
+    sockets.dispatchSocket = connectToServer(kernelConfig->ipCPU,kernelConfig->puertoCPUDispatch);
+    sockets.interruptSocket = connectToServer(kernelConfig->ipCPU,kernelConfig->puertoCPUInterrupt);
 
-    //Consola interactiva
-    kernelUserInterfaceStart();
+    kernelUserInterfaceStart(&sockets);
+
 
     //Finalizar
+    disconnectServer(sockets.kernelSocket);
+    disconnectClient(sockets.memoriaSocket);
+    disconnectClient(sockets.dispatchSocket);
+    disconnectClient(sockets.interruptSocket);
     log_destroy(logger);
     return 0;
 }
 
 
 void sighandler(int s) {
+    disconnectServer(sockets.kernelSocket);
+    disconnectClient(sockets.memoriaSocket);
+    disconnectClient(sockets.dispatchSocket);
+    disconnectClient(sockets.interruptSocket);
+    log_info(logger,"Terminado el Servidor CPU");
     log_destroy(logger);
     // Agregar cualquier funcion luego de que el programa reciba la señal del "CTRL + C"
     exit(0);
