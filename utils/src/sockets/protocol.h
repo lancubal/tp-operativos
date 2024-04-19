@@ -13,7 +13,8 @@
 typedef enum {
     APROBAR_OPERATIVOS,
     MIRAR_NETFLIX,
-    DEBUG_CODE = 69
+    DEBUG_CODE = 69,
+    ERROR_OP = -1 
 }op_code_NUESTRO;
 
 ///

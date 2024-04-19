@@ -23,7 +23,7 @@ int connectToServer(char *ip, char* puerto)
 
     // Ahora que tenemos el socket, vamos a conectarlo
     connect(socket_cliente, server_info->ai_addr, server_info->ai_addrlen);
-
+    
     freeaddrinfo(server_info);
 
     return socket_cliente;

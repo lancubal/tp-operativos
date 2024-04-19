@@ -5,13 +5,11 @@
 #include <kernel_conexion.h>
 #include <signal.h>
 
-void sighandler(int s) {
-    log_destroy(logger);
-    // Agregar cualquier funcion luego de que el programa reciba la señal del "CTRL + C"
-    exit(0);
-}
+
+void sighandler(int s);
 
 t_log *logger;
+socketsT sockets;
 
 int main(int argc, char* argv[]) {
     signal(SIGINT, sighandler);
@@ -38,4 +36,11 @@ int main(int argc, char* argv[]) {
     //Finalizar
     log_destroy(logger);
     return 0;
+}
+
+
+void sighandler(int s) {
+    log_destroy(logger);
+    // Agregar cualquier funcion luego de que el programa reciba la señal del "CTRL + C"
+    exit(0);
 }

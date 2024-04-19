@@ -77,7 +77,7 @@ void procesar_conexion(void* void_args) {
             }
 
             // Errores
-            case -1:
+            case ERROR_OP:
                 log_error(logger, "Cliente desconectado de %s...", server_name);
                 return;
             default:
