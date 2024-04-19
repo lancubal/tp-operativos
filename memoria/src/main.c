@@ -30,24 +30,21 @@ int main(int argc, char* argv[]) {
     memoria_config_t* memoriaConfig = memoriaConfigLoad(argv[1]);
 
     //Iniciar conexiones
-    //socketsT* sockets = iniciarConexiones(memoriaConfig);
-    sockets.memoriaSocket = iniciarServerProceso(memoriaConfig->ipMemoria, memoriaConfig->puertoEscucha, "Memoria");
-    while (server_escuchar(logger, "Servidor Memoria",&sockets ));
+    iniciarConexiones(memoriaConfig,&sockets);
+    
+    
+    while(server_escuchar(logger, "Servidor Memoria",&sockets ));
 
 
 
     //Finalizar
-    //close(sockets->memoriaSocket);
-    disconnectServer(sockets.memoriaSocket);
-    log_destroy(logger);
+    fin_conexion(logger,&sockets);
     return 0;
 }
 
 
 void sighandler(int s) {
     // Agregar cualquier funcion luego de que el programa reciba la señal del "CTRL + C"
-    log_info(logger,"DISCONNECT !!!");
-    log_destroy(logger);
-    disconnectServer(sockets.memoriaSocket);
+    fin_conexion(logger,&sockets);
     exit(0);
 }

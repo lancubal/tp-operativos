@@ -10,6 +10,12 @@ typedef struct {
     char* server_name;
 } t_procesar_conexion_args;
 
+void iniciarConexiones(cpu_config_t* cpuConfig, socketsT * sockets) {
+    sockets->dispatchSocket = iniciarServerProceso(cpuConfig->ipCPU, cpuConfig->puertoEscuchaDispatch, "CPU Dispatch");
+    sockets->interruptSocket = iniciarServerProceso(cpuConfig->ipCPU, cpuConfig->puertoEscuchaInterrupt, "CPU Interrupt");
+    sockets->memoriaSocket = connectToServer(cpuConfig->ipMemoria,cpuConfig->puertoMemoria);
+}
+
 
 void procesar_conexion(void* void_args) {
     t_procesar_conexion_args* args = (t_procesar_conexion_args*) void_args;
@@ -83,6 +89,16 @@ int server_escuchar(t_log* logger, char* server_name, int* server_socket) {
 
 int phread_server_escuchar(void* server_socket){
 
-    while (server_escuchar(logger,"NAME",(int*)server_socket));
+    while (server_escuchar(logger,"CPU",(int*)server_socket));
     return -1;
+}
+
+
+void fin_conexion(t_log* logger, socketsT * sockets){
+    disconnectServer(sockets->dispatchSocket);
+    disconnectServer(sockets->interruptSocket);
+    disconnectClient(sockets->memoriaSocket);
+    log_info(logger,"Terminado el Servidor CPU");
+    log_destroy(logger);
+
 }

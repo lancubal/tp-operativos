@@ -11,47 +11,12 @@ typedef struct {
     char* server_name;
 } t_procesar_conexion_args;
 
-void iniciarConexiones(kernel_config_t* kernelConfig) {
-    //Iniciar servidor de Kernel
-    //Se crea el tad para el hilo de Memoria server
-    pthread_t kernelServer;
-    //Se inicia el servidor de Kernel
-    int socketKernel = iniciarServerProceso(kernelConfig->ipKernel, kernelConfig->puertoEscucha, "Kernel");
-    //Se crea el hilo de Kernel server
-    pthread_create(&kernelServer, NULL, (void*) waitClient, (void*) &socketKernel);
-
-    //Se crea el tad para el hilo de conexion a Memoria
-    pthread_t conectarAMemoria;
-    //Se asignan los argumentos para el hilo de Memoria
-    ConectarArgsT* memoriaServerArgs = createConectarArgs(kernelConfig->ipMemoria, kernelConfig->puertoMemoria, "Memoria");
-    //Se crea el hilo de Memoria
-    pthread_create(&conectarAMemoria, NULL, (void*) conectarA, (void*) memoriaServerArgs);
-
-    //Se crea el tad para el hilo de conexion a CPU Dispatch
-    pthread_t conectarACPUDispatch;
-    //Se asignan los argumentos para el hilo de CPU Dispatch
-    ConectarArgsT* cpuDispatchServerArgs = createConectarArgs(kernelConfig->ipCPU, kernelConfig->puertoCPUDispatch, "CPU Dispatch");
-    //Se crea el hilo de CPU Dispatch
-    pthread_create(&conectarACPUDispatch, NULL, (void*) conectarA, (void*) cpuDispatchServerArgs);
-
-    //Se crea el tad para el hilo de conexion a CPU Interrupt
-    pthread_t conectarACPUInterrupt;
-    //Se asignan los argumentos para el hilo de CPU Interrupt
-    ConectarArgsT* cpuInterruptServerArgs = createConectarArgs(kernelConfig->ipCPU, kernelConfig->puertoCPUInterrupt, "CPU Interrupt");
-    //Se crea el hilo de CPU Interrupt
-    pthread_create(&conectarACPUInterrupt, NULL, (void*) conectarA, (void*) cpuInterruptServerArgs);
-
-    //Se inician los hilos de las conexiones
-    int socketKernelCliente;
-    pthread_join(kernelServer, (void*) &socketKernelCliente);
-    int socketMemoriaServer;
-    pthread_join(conectarAMemoria, (void*) &socketMemoriaServer);
-    int socketCPUDispatchServer;
-    pthread_join(conectarACPUDispatch, (void*) &socketCPUDispatchServer);
-    int socketCPUInterruptServer;
-    pthread_join(conectarACPUInterrupt, (void*) &socketCPUInterruptServer);
+void iniciarConexiones(kernel_config_t* kernelConfig, socketsT * sockets) {
+    sockets->kernelSocket = iniciarServerProceso(kernelConfig->ipKernel, kernelConfig->puertoEscucha, "Kernel Server");
+    sockets->memoriaSocket = connectToServer(kernelConfig->ipMemoria,kernelConfig->puertoMemoria);
+    sockets->dispatchSocket = connectToServer(kernelConfig->ipCPU,kernelConfig->puertoCPUDispatch);
+    sockets->interruptSocket = connectToServer(kernelConfig->ipCPU,kernelConfig->puertoCPUInterrupt);
 }
-
 
 
 void procesar_conexion(void* void_args) {
@@ -106,7 +71,6 @@ void procesar_conexion(void* void_args) {
 }
 
 
-
 int server_escuchar(t_log* logger, char* server_name, int* server_socket) {
     int cliente_socket = esperar_cliente(logger, server_name, *server_socket);
     
@@ -126,6 +90,16 @@ int server_escuchar(t_log* logger, char* server_name, int* server_socket) {
 
 int phread_server_escuchar(void* server_socket){
 
-    while (server_escuchar(logger,"NAME",(int*)server_socket));
+    while (server_escuchar(logger,"Kernel Server",(int*)server_socket));
     return -1;
+}
+
+void fin_conexion(t_log* logger, socketsT * sockets){
+    disconnectServer(sockets->kernelSocket);
+    disconnectClient(sockets->memoriaSocket);
+    disconnectClient(sockets->dispatchSocket);
+    disconnectClient(sockets->interruptSocket);
+    log_info(logger,"Terminado el Servidor Kernel");
+    log_destroy(logger);
+
 }

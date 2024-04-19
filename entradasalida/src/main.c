@@ -24,10 +24,8 @@ int main(int argc, char* argv[]) {
 
     //Obtener datos de configuracion
     entradasalida_config_t * entradasalidaConfig = entradasalidaConfigLoad(argv[1]);
-
-    sockets.memoriaSocket = connectToServer(entradasalidaConfig->ipMemoria,entradasalidaConfig->puertoMemoria);
-    sockets.kernelSocket = connectToServer(entradasalidaConfig->ipKernel,entradasalidaConfig->puertoKernel);
-
+    iniciarConexiones(entradasalidaConfig,&sockets);
+    
     //Testing Send message
     int a;
     while (1)
@@ -38,20 +36,13 @@ int main(int argc, char* argv[]) {
     }
 
     //Finalizar
-    disconnectClient(sockets.memoriaSocket);
-    disconnectClient(sockets.kernelSocket);
-    log_info(logger,"Terminado I/O");
-    log_destroy(logger);
+    fin_conexion(logger,&sockets);
     return 0;
 }
 
 
 void sighandler(int s) {
-    
-    disconnectClient(sockets.memoriaSocket);
-    disconnectClient(sockets.kernelSocket);
-    log_info(logger,"Terminado I/O");
-    log_destroy(logger);
     // Agregar cualquier funcion luego de que el programa reciba la señal del "CTRL + C"
+    fin_conexion(logger,&sockets);
     exit(0);
 }

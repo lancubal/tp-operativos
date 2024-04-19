@@ -18,8 +18,8 @@
 
 
 
-socketsT* iniciarConexiones(memoria_config_t* memoriaConfig); // lo dejo sin uso por ahora
+void iniciarConexiones(memoria_config_t* memoriaConfig, socketsT * sockets);
 int server_escuchar(t_log* logger, char* server_name, socketsT * server_socket);
 void procesar_conexion(void* void_args);
-
+void fin_conexion(t_log* logger, socketsT * sockets);
 #endif //TP_2024_1C_GRUPO_MEMORIA_CONEXION_H

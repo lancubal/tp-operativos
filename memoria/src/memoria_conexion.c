@@ -11,33 +11,9 @@ typedef struct {
 } t_procesar_conexion_args;
 
 
-socketsT* iniciarConexiones(memoria_config_t* memoriaConfig) {
-
-
-    //Iniciar servidor de Memoria server
-    int socketMemoria = iniciarServerProceso(memoriaConfig->ipMemoria, memoriaConfig->puertoEscucha, "Memoria");
-
-    //Se crean los tad para recibir al CPU
-    pthread_t cpuClientTH;
-    //Se crea el hilo para recibir al CPU
-    pthread_create(&cpuClientTH, NULL, (void*) waitClient, (void*) &socketMemoria);
-
-    //Se crea el tad para recibir al Kernel
-    pthread_t kernelClientTH;
-    //Se crea el hilo para recibir al Kernel
-    pthread_create(&kernelClientTH, NULL, (void*) waitClient, (void*) &socketMemoria);
-
-    //Se inicia el hilo para recibir al CPU
-    int socketCPU;
-    int socketKernel;
-    log_info(logger, "Esperando al cliente: CPU");
-    log_info(logger, "Esperando al cliente: Kernel");
-    pthread_join(cpuClientTH, (void*) &socketCPU);
-    pthread_join(kernelClientTH, (void*) &socketKernel);
-
-    return createSocketsT(socketMemoria, socketCPU, socketKernel, 0);
+void iniciarConexiones(memoria_config_t* memoriaConfig, socketsT * sockets) {
+    sockets->memoriaSocket = iniciarServerProceso(memoriaConfig->ipMemoria, memoriaConfig->puertoEscucha, "Memoria");
 }
-
 
 
 void procesar_conexion(void* void_args) {
@@ -109,3 +85,9 @@ int server_escuchar(t_log* logger, char* server_name, socketsT * socket) {
     return 0;
 }
 
+void fin_conexion(t_log* logger, socketsT * sockets){
+    disconnectServer(sockets->memoriaSocket);
+    log_info(logger,"Terminado el Servidor Memoria");
+    log_destroy(logger);
+
+}

@@ -29,37 +29,26 @@ int main(int argc, char* argv[]) {
 
 
     //Hacer un Thread por cada inicio de Server y conexion en un funcion USER INICIAR CONEXIONES
-    sockets.kernelSocket = iniciarServerProceso(kernelConfig->ipKernel, kernelConfig->puertoEscucha, "Kernel Server");
-    sockets.memoriaSocket = connectToServer(kernelConfig->ipMemoria,kernelConfig->puertoMemoria);
-    sockets.dispatchSocket = connectToServer(kernelConfig->ipCPU,kernelConfig->puertoCPUDispatch);
-    sockets.interruptSocket = connectToServer(kernelConfig->ipCPU,kernelConfig->puertoCPUInterrupt);
+    iniciarConexiones(kernelConfig,&sockets);
+
 
     pthread_t kernel_thread;
     pthread_create(&kernel_thread,NULL,(void *)phread_server_escuchar,&sockets.kernelSocket);
 
     kernelUserInterfaceStart(&sockets);
 
-    int fin; // Mas adelante cambiarlo por socket de Kernel
-    pthread_join(kernel_thread,(void*) &fin);  // Deberia recibir señal para cerrar el thread
+    // int fin; // Mas adelante cambiarlo por socket de Kernel
+    // pthread_join(kernel_thread,(void*) &fin);  // Deberia recibir señal para cerrar el thread
 
     //Finalizar
-    disconnectServer(sockets.kernelSocket);
-    disconnectClient(sockets.memoriaSocket);
-    disconnectClient(sockets.dispatchSocket);
-    disconnectClient(sockets.interruptSocket);
-    log_info(logger,"Terminado el Servidor Kernel");
-    log_destroy(logger);
+    fin_conexion(logger,&sockets);
+    close(kernel_thread);
     return 0;
 }
 
 
 void sighandler(int s) {
-    disconnectServer(sockets.kernelSocket);
-    disconnectClient(sockets.memoriaSocket);
-    disconnectClient(sockets.dispatchSocket);
-    disconnectClient(sockets.interruptSocket);
-    log_info(logger,"Terminado el Servidor Kernel");
-    log_destroy(logger);
     // Agregar cualquier funcion luego de que el programa reciba la señal del "CTRL + C"
+    fin_conexion(logger,&sockets);
     exit(0);
 }

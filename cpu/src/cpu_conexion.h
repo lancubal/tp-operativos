@@ -13,12 +13,13 @@
 #include <commons/log.h>
 #include <pthread.h>
 #include <sockets/server.h>
+#include <sockets/client.h>
 #include "sockets/conexiontad.h"
 #include "sockets/protocol.h"
 
-
+void iniciarConexiones(cpu_config_t* cpuConfig, socketsT * sockets);
 int server_escuchar(t_log* logger, char* server_name, int*  server_socket);
 int phread_server_escuchar(void* server_socket);
 void procesar_conexion(void* void_args);
-
+void fin_conexion(t_log* logger, socketsT * sockets);
 #endif //TP_2024_1C_GRUPO_CPU_CONEXION_H

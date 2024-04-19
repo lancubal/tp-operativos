@@ -10,6 +10,6 @@
 #include "sockets/client.h"
 #include "sockets/protocol.h"
 
-void kernelUserInterfaceStart(socketsT *);
+int kernelUserInterfaceStart(socketsT *);
 
 #endif //TP_2024_1C_GRUPO_KERNEL_USER_INTERFACE_H

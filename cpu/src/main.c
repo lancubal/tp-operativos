@@ -29,11 +29,7 @@ int main(int argc, char* argv[]) {
 
     //Obtener datos de configuracion
     cpu_config_t* cpuConfig = cpuConfigLoad(argv[1]);
-    //sockets.memoriaSocket = iniciarServerProceso(cpuConfig->ipMemoria, cpuConfig->puertoMemoria, "Memoria");
-    sockets.dispatchSocket = iniciarServerProceso(cpuConfig->ipCPU, cpuConfig->puertoEscuchaDispatch, "CPU Dispatch");
-    sockets.interruptSocket = iniciarServerProceso(cpuConfig->ipCPU, cpuConfig->puertoEscuchaInterrupt, "CPU Interrupt");
-    sockets.memoriaSocket = connectToServer(cpuConfig->ipMemoria,cpuConfig->puertoMemoria);
-    
+    iniciarConexiones(cpuConfig,&sockets);
 
     pthread_t dispatch_thread;
     pthread_create(&dispatch_thread,NULL,(void *)phread_server_escuchar,&sockets.dispatchSocket);
@@ -49,18 +45,15 @@ int main(int argc, char* argv[]) {
     }
     
 
-
-
-    int fin; // Mas adelante cambiarlo por socket de Kernel
-    pthread_join(dispatch_thread,(void*) &fin);  // Deberia recibir señal para cerrar el thread
-    pthread_join(interrupt_thread,(void*) &fin); // Deberia recibir señal para cerrar el thread
+    // int fin; // Mas adelante cambiarlo por socket de Kernel
+    // pthread_join(dispatch_thread,(void*) &fin);  // Deberia recibir señal para cerrar el thread
+    // pthread_join(interrupt_thread,(void*) &fin); // Deberia recibir señal para cerrar el thread
  
 
     //Finalizar
-    disconnectServer(sockets.dispatchSocket);
-    disconnectServer(sockets.interruptSocket);
-    disconnectClient(sockets.memoriaSocket);
-    log_destroy(logger);
+    fin_conexion(logger,&sockets);
+    close(dispatch_thread);
+    close(interrupt_thread);
     return 0;
 }
 
@@ -68,10 +61,6 @@ int main(int argc, char* argv[]) {
 
 void sighandler(int s) {
     // Agregar cualquier funcion luego de que el programa reciba la señal del "CTRL + C"
-    disconnectServer(sockets.dispatchSocket);
-    disconnectServer(sockets.interruptSocket);
-    disconnectClient(sockets.memoriaSocket);
-    log_info(logger,"Terminado el Servidor CPU");
-    log_destroy(logger);
+    fin_conexion(logger,&sockets);
     exit(0);
 }
