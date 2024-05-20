@@ -6,6 +6,7 @@
 #define TP_2024_1C_GRUPO_MODULE_TADS_H
 
 #include <stdint.h>
+#include <stddef.h>
 
 
 // Definición de la estructura para el PCB
@@ -23,6 +24,7 @@ typedef struct {
     uint32_t ECX;
     uint32_t SI;
     uint32_t DI;
+    size_t size;
 } T_CPU_REGISTERS;
 
 typedef struct {
@@ -31,6 +33,7 @@ typedef struct {
     int Quantum; // Unidad de tiempo utilizada por el algoritmo de planificación VRR
     char* State; // Estado del proceso (NEW, READY, EXEC, BLOCK, EXIT)
     T_CPU_REGISTERS CPU_REGISTERS; // Registros de la CPU
+    size_t size;
 } t_PCB;
 
 // Función para inicializar un t_PCB
