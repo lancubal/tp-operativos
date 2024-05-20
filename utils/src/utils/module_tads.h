@@ -29,6 +29,7 @@ typedef struct {
     int PID; // Identificador del proceso
     int PC; // Número de la próxima instrucción a ejecutar
     int Quantum; // Unidad de tiempo utilizada por el algoritmo de planificación VRR
+    char* State; // Estado del proceso (NEW, READY, EXEC, BLOCK, EXIT)
     T_CPU_REGISTERS CPU_REGISTERS; // Registros de la CPU
 } t_PCB;
 
