@@ -1,5 +1,65 @@
 #include "protocol.h"
 
+
+void* serializer(void* tad, const size_t *size) {
+    // Asigna memoria para el flujo de bytes
+    void* stream = malloc(*size);
+
+    // Copia la estructura al flujo de bytes
+    memcpy(stream, tad, *size);
+
+    return stream;
+}
+
+void* deserializer(void* stream, const size_t *size) {
+    // Asigna memoria para la estructura
+    void* tad = malloc(*size);
+
+    // Copia el flujo de bytes a la estructura
+    memcpy(tad, stream, *size);
+
+    return tad;
+}
+
+bool send_tad(int fd, void* tad, const size_t *size) {
+    // Serializa la estructura en un flujo de bytes
+    void* stream = serializer(tad, size);
+
+    // Envía el flujo de bytes a través del socket
+    if (send(fd, stream, *size, 0) != *size) {
+        // Si el envío no se realiza correctamente, libera la memoria y devuelve false
+        free(stream);
+        return false;
+    }
+
+    // Libera la memoria asignada para el flujo de bytes
+    free(stream);
+
+    // Devuelve true si los datos se enviaron correctamente
+    return true;
+}
+
+bool recv_tad(int fd, void** tad, const size_t *size) {
+    // Asigna memoria para el flujo de bytes
+    void* stream = malloc(*size);
+
+    // Recibe el flujo de bytes a través del socket
+    if (recv(fd, stream, *size, 0) != *size) {
+        // Si la recepción no se realiza correctamente, libera la memoria y devuelve false
+        free(stream);
+        return false;
+    }
+
+    // Deserializa la estructura desde el flujo de bytes
+    *tad = deserializer(stream, size);
+
+    // Libera la memoria asignada para el flujo de bytes
+    free(stream);
+
+    // Devuelve true si los datos se recibieron correctamente
+    return true;
+}
+
 // Test
 /**
  * @brief Serializa los datos de prueba en un flujo de bytes.
@@ -59,7 +119,7 @@ static void* serializar_test(size_t* size, char* cadena, uint8_t cant) {
  * Esta función toma un flujo de bytes y extrae una cadena y un byte de él.
  * La cadena y el byte extraídos se almacenan en los parámetros cadena y cant, respectivamente.
  *
- * @param stream Un puntero al flujo de bytes a deserializar.
+ * @param stream Un puntero al flujo de bytes a deserializer.
  * @param cadena Un puntero a un puntero de char donde se almacenará la cadena deserializada.
  * @param cant Un puntero a un uint8_t donde se almacenará el byte deserializado.
  */

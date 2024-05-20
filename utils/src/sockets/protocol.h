@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include <utils/module_tads.h>
 
 typedef enum {
     TEST,
@@ -16,9 +17,15 @@ typedef enum {
     ERROR_OP = -1 
 }op_code_NUESTRO;
 
-
 bool send_test(int fd, char*  cadena, uint8_t  cant);
 bool recv_test(int fd, char** cadena, uint8_t* cant);
+
+void* serializer(void *tad, const size_t *size);
+void* deserializer(void *stream, const size_t *size);
+bool send_tad(int fd, void* tad, const size_t *size);
+bool recv_tad(int fd, void** tad, const size_t *size);
+
+
 
 bool send_debug(int fd);
 
