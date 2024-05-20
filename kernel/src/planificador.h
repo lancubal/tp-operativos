@@ -9,5 +9,7 @@
 #include <commons/collections//queue.h>
 #include <utils/logger.h>
 #include <utils/module_tads.h>
+#include "sockets/protocol.h"
+#include "sockets/client.h"
 
 #endif //TP_2024_1C_GRUPO_PLANIFICADOR_H

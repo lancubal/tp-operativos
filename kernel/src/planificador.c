@@ -5,6 +5,7 @@
 
 #include "planificador.h"
 
+
 enum ALGORITHM {
     FIFO,
     RR,
@@ -12,7 +13,7 @@ enum ALGORITHM {
 };
 
 void VRR_ALGORITHM(t_queue * ready_queue, int quantum) {
-    // TODO
+    // TODO CHECKPOINT 3
     t_PCB * pcb = queue_pop(ready_queue);
     while (pcb != NULL) {
         pcb->State = "EXEC";
@@ -25,7 +26,7 @@ void VRR_ALGORITHM(t_queue * ready_queue, int quantum) {
                 break;
             }
         }
-        free(pcb); // Liberar memoria del PCB (Proceso Control Block
+        free(pcb); // Liberar memoria del PCB (Proceso Control Block)
         pcb = queue_pop(ready_queue);
     }
 }
@@ -33,6 +34,7 @@ void VRR_ALGORITHM(t_queue * ready_queue, int quantum) {
 void RR_ALGORITHM(t_queue * ready_queue, int quantum) {
     t_PCB * pcb = queue_pop(ready_queue);
     while (pcb != NULL) {
+        send_tad(sockets.dispatchSocket, pcb, &pcb->size);
         pcb->State = "EXEC";
         log_info(logger, "Ejecutando proceso %d\n", pcb->PID);
         pcb->Quantum = quantum;
@@ -40,6 +42,8 @@ void RR_ALGORITHM(t_queue * ready_queue, int quantum) {
             pcb->Quantum--;
             if (pcb->Quantum == 0) {
                 // Desalojar de CPU
+                // TODO
+                send_tad(sockets.interruptSocket, pcb, &pcb->size);
                 pcb->State = "READY";
                 log_info(logger, "Proceso %d se quedo sin quantum\n", pcb->PID);
                 break;
@@ -52,12 +56,28 @@ void RR_ALGORITHM(t_queue * ready_queue, int quantum) {
 
 void FIFO_ALGORITHM(t_queue * ready_queue) {
     t_PCB * pcb = queue_pop(ready_queue);
-    while (pcb != NULL) {
+    t_queue *block_queue = queue_create();
+    while (true) {
+        if (pcb == NULL) {
+            pcb = queue_pop(block_queue);
+            if (pcb == NULL) {
+                break;
+            }
+        }
+        // Enviar PCB a CPU
+        send_tad(sockets.dispatchSocket, pcb, &pcb->size);
         pcb->State = "EXEC";
         log_info(logger, "Ejecutando proceso %d\n", pcb->PID);
-        // Enviar PCB a CPU
-
-        free(pcb); // Liberar memoria del PCB (Proceso Control Block
+        recv_tad(sockets.dispatchSocket, (void **) &pcb, &pcb->size);
+        // Tengo que decidir si lo mando a BLOCK a EXIT
+        if (pcb->State == "BLOCK") {
+            // Enviar PCB a CPU
+            queue_push(block_queue, pcb);
+            log_info(logger, "Proceso %d se bloqueo\n", pcb->PID);
+        } else if (pcb->State == "EXIT") {
+            log_info(logger, "Proceso %d termino\n", pcb->PID);
+        }
+        free(pcb); // Liberar memoria del PCB (Proceso Control Block)
         pcb = queue_pop(ready_queue);
     }
 }
@@ -78,8 +98,6 @@ void SHORT_TERM_SCHEDULER(t_queue * ready_queue, enum ALGORITHM algorithm, int q
         }
     }
 }
-
-
 
 void LONG_TERM_SCHEDULER() {
     // Code
