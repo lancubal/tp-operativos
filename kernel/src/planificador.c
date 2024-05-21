@@ -6,12 +6,6 @@
 #include "planificador.h"
 
 
-enum ALGORITHM {
-    FIFO,
-    RR,
-    VRR
-};
-
 void VRR_ALGORITHM(t_queue * ready_queue, int quantum) {
     // TODO CHECKPOINT 3
     t_PCB * pcb = queue_pop(ready_queue);
@@ -69,7 +63,7 @@ void FIFO_ALGORITHM(t_queue * ready_queue) {
         pcb->State = "EXEC";
         log_info(logger, "Ejecutando proceso %d\n", pcb->PID);
         recv_tad(sockets.dispatchSocket, (void **) &pcb, &pcb->size);
-        // Tengo que decidir si lo mando a BLOCK a EXIT
+        // Tengo que decidir si lo mando a BLOCK o a EXIT
         if (pcb->State == "BLOCK") {
             // Enviar PCB a CPU
             queue_push(block_queue, pcb);
@@ -82,20 +76,9 @@ void FIFO_ALGORITHM(t_queue * ready_queue) {
     }
 }
 
-void SHORT_TERM_SCHEDULER(t_queue * ready_queue, enum ALGORITHM algorithm, int quantum) {
+void SHORT_TERM_SCHEDULER(t_queue * ready_queue, ALGORITHM algo, int quantum) {
     while (queue_size(ready_queue) > 0) {
-        if (algorithm == FIFO) {
-            FIFO_ALGORITHM(ready_queue);
-            continue;
-        }
-        if (algorithm == RR) {
-            RR_ALGORITHM(ready_queue, quantum);
-            continue;
-        }
-        if (algorithm == VRR) {
-            VRR_ALGORITHM(ready_queue, quantum);
-            continue;
-        }
+        algo(ready_queue);
     }
 }
 

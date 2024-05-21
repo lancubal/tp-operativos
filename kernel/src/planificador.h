@@ -12,4 +12,6 @@
 #include "sockets/protocol.h"
 #include "sockets/client.h"
 
+typedef void (*ALGORITHM)(t_queue *);
+
 #endif //TP_2024_1C_GRUPO_PLANIFICADOR_H
