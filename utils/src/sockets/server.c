@@ -54,7 +54,7 @@ int startServer(char* ip, char* puerto)
     // Asociamos el socket a un puerto
     if(bind(socket_servidor, servinfo->ai_addr, servinfo->ai_addrlen) != 0)
     {
-        log_error(logger, "Error al bindear el socket, errno %d\n", errno);
+        log_error(logger, "Error al bindear el socket: %s", strerror(errno));
         close(socket_servidor);
         return -1;
     }
@@ -100,7 +100,7 @@ int esperar_cliente(const char* name, int socket_servidor) {
     // Si hubo un error al aceptar la conexión del cliente
     if(errno != 0) {
         // Registrar el error y terminar el programa
-        log_error(logger, "El cliente no se pudo conectar por: errno %d", errno);
+        log_error(logger, "Error al aceptar la conexión del cliente: %s", strerror(errno));
         exit(-1);
     }
 
@@ -131,7 +131,7 @@ int iniciarServerProceso(char* ip, char* puerto, char* proceso) {
     //Iniciar servidor
     int socketServidor = startServer(ip, puerto);
     if(errno != 0) {
-        log_error(logger, "Error al iniciar servidor de %s", proceso);
+        log_error(logger, "Error al iniciar servidor de %s: %s", proceso, strerror(errno));
         exit(-1);
     }
     log_info(logger, "Servidor de %s iniciado en: %s:%s", proceso, ip, puerto);

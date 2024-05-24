@@ -43,7 +43,7 @@ int connectToServer(char *ip, char* puerto)
     connect(socket_cliente, server_info->ai_addr, server_info->ai_addrlen);
     // Si hay un error, lo registra y sale
     if(errno != 0) {
-        log_error(logger, "Error al conectar a %s:%s por errno %d", ip, puerto, errno);
+        log_error(logger, "Error al conectar a %s:%s errno: %s", ip, puerto, strerror(errno));
         exit(-1);
     }
     // Registra la conexión exitosa
