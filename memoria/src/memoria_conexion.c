@@ -42,11 +42,11 @@ void procesar_conexion(void* void_args) {
     char* server_name = args->server_name;
     free(args);
 
-    op_code_NUESTRO cop;
+    OP_CODES cop;
     // Entramos en un bucle donde recibimos y procesamos los mensajes de los clientes
     while (cliente_socket != -1) {
         // Recibimos el código de operación del mensaje
-        if (recv(cliente_socket, &cop, sizeof(op_code_NUESTRO), 0) != sizeof(op_code_NUESTRO)) {
+        if (recv(cliente_socket, &cop, sizeof(OP_CODES), 0) != sizeof(OP_CODES)) {
             log_info(logger, "DISCONNECT!");
             return;
         }
