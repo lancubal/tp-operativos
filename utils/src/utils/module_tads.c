@@ -11,6 +11,7 @@ t_PCB init_PCB(int PID, int PC, int Quantum) {
     pcb.PC = PC;
     pcb.Quantum = Quantum;
     pcb.CPU_REGISTERS = init_CPU_REGISTERS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    pcb.State = "NEW";
     pcb.size = sizeof(t_PCB) + pcb.CPU_REGISTERS.size;
     return pcb;
 }

@@ -4,7 +4,8 @@
 #include "kernel_user_interface.h"
 #include <kernel_conexion.h>
 #include <signal.h>
-
+#include <planificador.h>
+#include <commons/collections/queue.h>
 
 // Definición de la función sighandler que se ejecutará cuando se reciba la señal SIGINT (CTRL + C)
 void sighandler(int s);
@@ -43,7 +44,14 @@ int main(int argc, char* argv[]) {
     pthread_create(&kernel_thread,NULL,(void *)phread_server_escuchar,&sockets.kernelSocket);
 
     // Inicio de la interfaz de usuario del kernel
-    kernelUserInterfaceStart(&sockets);
+    //kernelUserInterfaceStart(&sockets);
+
+    // Inicio del planificador
+    t_queue* ready_queue = queue_create();
+    t_PCB pcb = init_PCB(40,2,5);
+    queue_push(ready_queue, &pcb);
+
+    SHORT_TERM_SCHEDULER(ready_queue, kernelConfig->algoritmoPlanificacion, 99);
 
     // Finalización de todas las conexiones y liberación de los recursos utilizados
     fin_conexion();

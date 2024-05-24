@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
 
     // Prueba de envío de mensajes
     int a;
-    while (1)
+    while (true)
     {
         // Bloqueo del programa para esperar la entrada del usuario
         scanf("%d", &a);
