@@ -1,5 +1,45 @@
+#include <commons/log.h>
+#include <errno.h>
 #include "protocol.h"
 
+bool send_opcode(int fd, OP_CODES opcode) {
+    // Enviar el opcode
+    ssize_t bytes_sent = send(fd, &opcode, sizeof(OP_CODES), 0);
+    if (bytes_sent < 0) {
+        log_error(logger, "Error al enviar el opcode: %s", strerror(errno));
+        return false;
+    }
+
+    // Verificar si se envió el tamaño correcto
+    if ((size_t)bytes_sent != sizeof(OP_CODES)) {
+        log_error(logger, "Error al enviar el opcode: tamaño incorrecto");
+        return false;
+    }
+
+    // El opcode se envió correctamente
+    return true;
+}
+
+bool recv_opcode(int fd, OP_CODES* opcode) {
+    // Recibir el opcode
+    /*ssize_t bytes_received = recv(fd, opcode, sizeof(OP_CODES), 0);
+    if (bytes_received < 0) {
+        log_error(logger, "Error al recibir el opcode: %s", strerror(errno));
+        return false;
+    }
+
+    // Verificar si se recibió el tamaño correcto
+    if ((size_t)bytes_received != sizeof(OP_CODES)) {
+        log_error(logger, "Error al recibir el opcode: tamaño incorrecto");
+        return false;
+    }*/
+
+    // El opcode se recibió correctamente
+    if(recv(fd, opcode, sizeof(OP_CODES), 0)) {
+        return true;
+    }
+    return false;
+}
 
 void* serializer(void* tad, const size_t *size) {
     // Asigna memoria para el flujo de bytes
@@ -25,6 +65,14 @@ bool send_tad(int fd, void* tad, const size_t *size) {
     // Serializa la estructura en un flujo de bytes
     void* stream = serializer(tad, size);
 
+    // Envía la longitud de los datos del TAD como prefijo
+    if (send(fd, size, sizeof(size_t), 0) < 0) {
+        // Si el envío no se realiza correctamente, libera la memoria y devuelve false
+        free(stream);
+        log_error(logger, "Error al enviar la longitud de los datos del TAD: %s", strerror(errno));
+        return false;
+    }
+
     // Envía el flujo de bytes a través del socket
     if (send(fd, stream, *size, 0) != *size) {
         // Si el envío no se realiza correctamente, libera la memoria y devuelve false
@@ -39,24 +87,29 @@ bool send_tad(int fd, void* tad, const size_t *size) {
     return true;
 }
 
-bool recv_tad(int fd, void** tad, const size_t *size) {
-    // Asigna memoria para el flujo de bytes
-    void* stream = malloc(*size);
+bool recv_tad(int fd, void** tad) {
 
-    // Recibe el flujo de bytes a través del socket
-    if (recv(fd, stream, *size, 0) != *size) {
-        // Si la recepción no se realiza correctamente, libera la memoria y devuelve false
-        free(stream);
+    // Recibir la longitud de los datos del TAD como prefijo
+    size_t tad_size;
+    if (recv(fd, &tad_size, sizeof(size_t), 0) < 0) {
+        log_error(logger, "Error al recibir la longitud de los datos del TAD: %s", strerror(errno));
         return false;
     }
 
-    // Deserializa la estructura desde el flujo de bytes
-    *tad = deserializer(stream, size);
+    // Asignar memoria para los datos del TAD
+    *tad = malloc(tad_size);
+    if (*tad == NULL) {
+        log_error(logger, "Error al asignar memoria para los datos del TAD: %s", strerror(errno));
+        return false;
+    }
 
-    // Libera la memoria asignada para el flujo de bytes
-    free(stream);
+    // Recibir los datos reales del TAD
+    if (recv(fd, *tad, tad_size, 0) < 0) {
+        log_error(logger, "Error al recibir los datos del TAD: %s", strerror(errno));
+        return false;
+    }
 
-    // Devuelve true si los datos se recibieron correctamente
+    // Los datos se recibieron correctamente
     return true;
 }
 
@@ -79,35 +132,35 @@ static void* serializar_test(size_t* size, char* cadena, uint8_t cant) {
 
     // Calcula el tamaño total de los datos serializados
     *size =
-          sizeof(op_code_NUESTRO)   // tamaño del código de operación
+          sizeof(OP_CODES)   // tamaño del código de operación
         + sizeof(size_t)    // tamaño del total
         + sizeof(size_t)    // tamaño de la cadena
         + size_cadena       // cadena
         + sizeof(uint8_t);  // cantidad
 
     // Calcula el tamaño de la carga útil (payload)
-    size_t size_payload = *size - sizeof(op_code_NUESTRO) - sizeof(size_t);
+    size_t size_payload = *size - sizeof(OP_CODES) - sizeof(size_t);
 
     // Asigna memoria para el flujo de datos
     void* stream = malloc(*size);
 
     // Define el código de operación
-    op_code_NUESTRO cop = TEST;
+    OP_CODES cop = TEST;
 
     // Copia el código de operación al flujo de datos
-    memcpy(stream, &cop, sizeof(op_code_NUESTRO));
+    memcpy(stream, &cop, sizeof(OP_CODES));
 
     // Copia el tamaño de la carga útil al flujo de datos
-    memcpy(stream+sizeof(op_code_NUESTRO), &size_payload, sizeof(size_t));
+    memcpy(stream+sizeof(OP_CODES), &size_payload, sizeof(size_t));
 
     // Copia el tamaño de la cadena al flujo de datos
-    memcpy(stream+sizeof(op_code_NUESTRO)+sizeof(size_t), &size_cadena, sizeof(size_t));
+    memcpy(stream+sizeof(OP_CODES)+sizeof(size_t), &size_cadena, sizeof(size_t));
 
     // Copia la cadena al flujo de datos
-    memcpy(stream+sizeof(op_code_NUESTRO)+sizeof(size_t)*2, cadena, size_cadena);
+    memcpy(stream+sizeof(OP_CODES)+sizeof(size_t)*2, cadena, size_cadena);
 
     // Copia la cantidad al flujo de datos
-    memcpy(stream+sizeof(op_code_NUESTRO)+sizeof(size_t)*2+size_cadena, &cant, sizeof(uint8_t));
+    memcpy(stream+sizeof(OP_CODES)+sizeof(size_t)*2+size_cadena, &cant, sizeof(uint8_t));
 
     // Devuelve el flujo de datos
     return stream;
@@ -215,10 +268,10 @@ bool recv_test(int fd, char** cadena, uint8_t* cant) {
  */
 bool send_debug(int fd) {
     // Define el código de depuración
-    op_code_NUESTRO cop = DEBUG_CODE;
+    OP_CODES cop = DEBUG_CODE;
 
     // Envía el código de depuración a través del socket
-    if (send(fd, &cop, sizeof(op_code_NUESTRO), 0) != sizeof(op_code_NUESTRO))
+    if (send(fd, &cop, sizeof(OP_CODES), 0) != sizeof(OP_CODES))
         return false;
 
     // Devuelve true si el código de depuración se envió correctamente
