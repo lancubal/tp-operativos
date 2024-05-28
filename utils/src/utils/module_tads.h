@@ -7,7 +7,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-
+#include <malloc.h>
 
 // Definición de la estructura para el PCB
 
@@ -32,16 +32,17 @@ typedef struct {
     int PC; // Número de la próxima instrucción a ejecutar
     int Quantum; // Unidad de tiempo utilizada por el algoritmo de planificación VRR
     char* State; // Estado del proceso (NEW, READY, EXEC, BLOCK, EXIT)
-    T_CPU_REGISTERS CPU_REGISTERS; // Registros de la CPU
+    T_CPU_REGISTERS* CPU_REGISTERS; // Registros de la CPU
     size_t size;
 } t_PCB;
 
 // Función para inicializar un t_PCB
-t_PCB init_PCB(int, int, int);
+t_PCB* init_PCB(int, int, int);
 
 // Función para inicializar un T_CPU_REGISTERS
-T_CPU_REGISTERS init_CPU_REGISTERS(uint8_t, uint8_t, uint8_t, uint8_t,
+T_CPU_REGISTERS* init_CPU_REGISTERS(uint8_t, uint8_t, uint8_t, uint8_t,
                                    uint32_t, uint32_t, uint32_t, uint32_t,
                                    uint32_t, uint32_t);
+
 
 #endif //TP_2024_1C_GRUPO_MODULE_TADS_H
