@@ -17,8 +17,10 @@ socketsT sockets;
 
 // Función principal del programa
 int main(int argc, char* argv[]) {
-    // Asignación de la función sighandler para manejar la señal SIGINT (CTRL + C)
+    // Manejo de la señales
     signal(SIGINT, sighandler);
+    signal(SIGPIPE, sighandler);
+    signal(SIGSEGV, sighandler);
 
     // Inicialización del logger
     logger = loggerCreate();
@@ -47,8 +49,10 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-// Función que se ejecutará cuando se reciba la señal SIGINT (CTRL + C)
-void sighandler(int s) {
+// Función que se ejecutará cuando se reciba una señal
+void sighandler(int signal) {
+    signal == SIGINT ? log_warning(logger, "Se ha recibido la señal %s", strsignal(signal)) :
+    log_error(logger, "Se ha recibido la señal %s", strsignal(signal));
     // Finalización de todas las conexiones y liberación de los recursos utilizados
     fin_conexion();
     // Terminación del programa

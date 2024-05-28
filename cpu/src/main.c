@@ -13,10 +13,16 @@ t_log *logger;
 // Definición de la función sighandler que se ejecutará cuando se reciba la señal SIGINT (CTRL + C)
 void sighandler(int s);
 
+T_CPU_REGISTERS* CPU_Registers;
+
+sem_t sem_pcb;
+
 // Función principal del programa
 int main(int argc, char* argv[]) {
-    // Manejo de la señal SIGINT (CTRL + C) con la función sighandler
+    // Manejo de la señales
     signal(SIGINT, sighandler);
+    signal(SIGPIPE, sighandler);
+    signal(SIGSEGV, sighandler);
 
     // Inicialización del logger
     logger = loggerCreate();
@@ -33,6 +39,9 @@ int main(int argc, char* argv[]) {
     // Carga de los datos de configuración desde el archivo especificado
     cpu_config_t* cpuConfig = cpuConfigLoad(argv[1]);
 
+    // Inicializo los registros de la CPU
+    CPU_Registers = malloc(sizeof(T_CPU_REGISTERS));
+
     // Inicio de las conexiones utilizando los datos de configuración cargados
     iniciarConexiones(cpuConfig);
 
@@ -42,15 +51,7 @@ int main(int argc, char* argv[]) {
     pthread_t interrupt_thread;
     pthread_create(&interrupt_thread,NULL,(void *)phread_server_escuchar,&sockets.interruptSocket);
 
-    // Prueba de envío de mensajes
-    int a;
-    while (true)
-    {
-        // Bloqueo del programa para esperar la entrada del usuario
-        scanf("%d", &a);
-        // Envío de un mensaje de prueba al socket de memoria
-        send_test(sockets.memoriaSocket, "Perro", 14);
-    }
+    cpu_ciclo();
 
     // Finalización de todas las conexiones y liberación de los recursos utilizados
     fin_conexion(&sockets);
@@ -60,8 +61,10 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-// Función que se ejecutará cuando se reciba la señal SIGINT (CTRL + C)
-void sighandler(int s) {
+// Función que se ejecutará cuando se reciba una señal
+void sighandler(int signal) {
+    signal == SIGINT ? log_warning(logger, "Se ha recibido la señal %s", strsignal(signal)) :
+    log_error(logger, "Se ha recibido la señal %s", strsignal(signal));
     // Finalización de todas las conexiones y liberación de los recursos utilizados
     fin_conexion();
     // Terminación del programa
