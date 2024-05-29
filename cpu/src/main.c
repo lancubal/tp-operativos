@@ -54,12 +54,17 @@ int main(int argc, char* argv[]) {
     pthread_t interrupt_thread;
     pthread_create(&interrupt_thread,NULL,(void *)phread_server_escuchar,&sockets->interruptSocket);
 
+    // Creacion de un nuevo hilo para escuchar a los servidores conectados
+    pthread_t memoria_thread;
+    pthread_create(&memoria_thread,NULL,(void *)cliente_escuchar,&sockets->memoriaSocket);
+
     // Creacion de hilo para el ciclo de la cpu
     pthread_t cpu_ciclo_thread;
     pthread_create(&cpu_ciclo_thread,NULL,(void *)cpu_ciclo,NULL);
 
     pthread_join(dispatch_thread,NULL);
     pthread_join(interrupt_thread,NULL);
+    pthread_join(memoria_thread,NULL);
     pthread_join(cpu_ciclo_thread,NULL);
 
     // Finalización de todas las conexiones y liberación de los recursos utilizados

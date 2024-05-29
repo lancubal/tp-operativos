@@ -78,6 +78,12 @@ void procesar_conexion(t_procesar_conexion_args* conexion_args) {
                 free(pcb);
                 break;
             }
+            case FETCH: {
+                // Recibo la instruccion
+                instruccion = malloc(packet->payload_size);
+                memcpy(instruccion, packet->payload, packet->payload_size);
+                sem_post(&sem_instruccion);
+            }
             case -1: {
                 log_error(logger, "Cliente desconectado de %s...", server_name);
                 break;
@@ -120,6 +126,17 @@ int server_escuchar(char* server_name, const int* server_socket) {
     }
     // Si no se pudo establecer una conexión, retornamos 0
     return 0;
+}
+
+// Escuchar al servidor conectado
+void cliente_escuchar(int* client_socket) {
+    // debo usar procesar_conexion y correrlo.
+    pthread_t hilo;
+    t_procesar_conexion_args* args = malloc(sizeof(t_procesar_conexion_args));
+    args->fd = *client_socket;
+    args->server_name = "test";
+    pthread_create(&hilo, NULL, (void*) procesar_conexion, (void*) args);
+    pthread_detach(hilo);
 }
 
 /**

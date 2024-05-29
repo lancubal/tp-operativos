@@ -27,9 +27,12 @@ typedef struct {
 extern T_CPU_REGISTERS CPU_Registers;
 extern sem_t sem_pcb;
 extern sem_t sem_cycle;
+extern sem_t sem_instruccion;
+extern char* instruccion;
 
 void iniciarConexiones(cpu_config_t* cpuConfig);
 int server_escuchar(char* server_name, const int*  server_socket);
+void cliente_escuchar(int* client_socket);
 int phread_server_escuchar(void* server_socket);
 void procesar_conexion(t_procesar_conexion_args*);
 void fin_conexion();
