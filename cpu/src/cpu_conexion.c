@@ -71,7 +71,7 @@ void procesar_conexion(t_procesar_conexion_args* conexion_args) {
                     sem_post(&sem_pcb);
 
                     // Enviar PCB a CPU
-                    sem_wait(&sem_fetch);
+                    sem_wait(&sem_cycle);
                     log_warning(logger, "Fetch terminado.");
                     send_packet(cliente_socket, create_packet(PCB, pcb->size, pcb, serialize_pcb));
                 }

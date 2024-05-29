@@ -4,26 +4,17 @@
 
 #include "cpu_ciclo.h"
 
-char* fetch() {
-    log_warning(logger, "Esperando semaforo...");
-    sem_wait(&sem_pcb);
+void fetch() {
     log_warning(logger, "Fetching...");
-    // Enviar el opcode FETCH a memoria
-    // TODO: Implementar el paquete
-    //OP_CODES opcode = FETCH;
-    //send_data(sockets.memoriaSocket, &opcode, sizeof(FETCH));
-    // Envio PC
-    //send_data(sockets.memoriaSocket, &CPU_Registers.PC, sizeof(CPU_Registers.PC));
-    // Recibo la instruccion de memoria
-    char* instruccion;
-    instruccion = "instruccion";
-    //recv_tad(sockets.memoriaSocket, (void*) &instruccion);
+    // Enviar el PC con el opcode FETCH
+    send_packet(sockets->memoriaSocket, create_packet(FETCH, sizeof(CPU_Registers.PC), &CPU_Registers.PC, NULL));
+    // Semaforo para esperar la instruccion de memoria
+    sem_wait(&sem_instruccion);
+    // semaforo
     CPU_Registers.PC++;
-    sem_post(&sem_fetch);
-    return instruccion;
 }
 
-void decode(char* instruccion) {
+void decode() {
     // TODO: Decodificar la instruccion
 }
 
@@ -33,10 +24,16 @@ void execute() {
 
 void cpu_ciclo() {
     // TODO: Implementar el ciclo de la CPU
-    char* instruccion = malloc(100);
-    while (true) {
-        instruccion = fetch();
-        //decode(instruccion);
-        //execute();
+    while(true) {
+        sem_wait(&sem_pcb);
+        while (true) {
+            fetch();
+            decode();
+            execute();
+            if (1 == 0) {
+                sem_post(&sem_cycle);
+                break;
+            }
+        }
     }
 }

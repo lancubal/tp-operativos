@@ -97,7 +97,9 @@ t_packet* create_packet(OP_CODES op_code, size_t payload_size, void* data, seria
         return NULL;
     }
     // Serializar data
-    serializer_func(data, &packet->payload, &payload_size);
+    serializer_func != NULL ?
+        serializer_func(data, &packet->payload, &payload_size) :
+        memcpy(packet->payload, data, payload_size);
 
     // Asignar los valores del paquete
     packet->op_code = op_code;

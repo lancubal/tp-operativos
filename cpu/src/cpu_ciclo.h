@@ -15,7 +15,9 @@
 
 extern T_CPU_REGISTERS CPU_Registers;
 extern sem_t sem_pcb;
-extern sem_t sem_fetch;
+extern sem_t sem_cycle;
+extern char* instruccion;
+extern sem_t sem_instruccion;
 
 t_PCB* pcb_recv(int socketMemoria);
 void cpu_ciclo();

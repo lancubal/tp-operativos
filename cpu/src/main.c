@@ -16,9 +16,12 @@ cpu_config_t *cpu_config = NULL;
 socketsT* sockets;
 // Declaración de la estructura CPU_Registers que almacenará los registros de la CPU
 T_CPU_REGISTERS CPU_Registers = {0, 0, 0, 0, 0, 0, 0, 0};
+// Instruccion fetcheada
+char* instruccion = NULL;
 // Semaforos
 sem_t sem_pcb;
-sem_t sem_fetch;
+sem_t sem_cycle;
+sem_t sem_instruccion;
 
 // Función principal del programa
 int main(int argc, char* argv[]) {
