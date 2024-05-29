@@ -10,4 +10,6 @@
 
 void iniciarConexiones();
 void fin_conexion();
+void cliente_escuchar(int* client_socket)
+
 #endif //TP_2024_1C_GRUPO_ENTRADASALIDA_CONEXION_H
