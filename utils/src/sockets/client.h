@@ -21,6 +21,6 @@ typedef struct {
 
 int connectToServer(char*, char*);
 void disconnectClient(int);
-extern socketsT sockets;
+extern socketsT* sockets;
 
 #endif //TP_2024_1C_GRUPO_CLIENT_H

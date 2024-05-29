@@ -9,11 +9,13 @@
 // Definición de la función sighandler que se ejecutará cuando se reciba la señal SIGINT (CTRL + C)
 void sighandler(int s);
 
+/*            VARIABLES GLOBALES            */
 // Declaración del logger que se utilizará para registrar los eventos del programa
 t_log *logger;
-
+// Declaración de la estructura entradasalida_config_t que almacenará los datos de configuración del programa
+entradasalida_config_t * entradasalida_config = NULL;
 // Declaración de la estructura socketsT que almacenará los sockets utilizados en el programa
-socketsT sockets;
+socketsT* sockets;
 
 // Función principal del programa
 int main(int argc, char* argv[]) {
@@ -35,9 +37,9 @@ int main(int argc, char* argv[]) {
     }
 
     // Carga de los datos de configuración desde el archivo especificado
-    entradasalida_config_t * entradasalidaConfig = entradasalidaConfigLoad(argv[1]);
+    entradasalidaConfigLoad(argv[1]);
     // Inicio de las conexiones utilizando los datos de configuración cargados
-    iniciarConexiones(entradasalidaConfig);
+    iniciarConexiones();
 
     // Prueba de envío de mensajes
     int a;

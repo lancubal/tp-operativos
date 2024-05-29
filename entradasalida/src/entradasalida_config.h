@@ -16,6 +16,8 @@ typedef struct {
     char* puertoMemoria;
 } entradasalida_config_t;
 
-entradasalida_config_t* entradasalidaConfigLoad(char* path);
+extern entradasalida_config_t* entradasalida_config;
+
+void entradasalidaConfigLoad(char* path);
 
 #endif //TP_2024_1C_GRUPO_ENTRADASALIDA_CONFIG_H

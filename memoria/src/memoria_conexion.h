@@ -16,7 +16,7 @@
 
 extern char* instrucciones[];
 
-void iniciarConexiones(memoria_config_t* memoriaConfig);
+void iniciarConexiones();
 int server_escuchar(char* server_name);
 void procesar_conexion(void* void_args);
 void fin_conexion();

@@ -19,6 +19,8 @@ typedef struct {
     char* algoritmoTLB;
 } cpu_config_t;
 
-cpu_config_t* cpuConfigLoad(char* path);
+extern cpu_config_t* cpu_config;
+
+void cpuConfigLoad(char* path);
 
 #endif //TP_2024_1C_GRUPO_CPU_CONFIG_H

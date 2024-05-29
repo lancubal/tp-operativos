@@ -23,15 +23,16 @@ typedef struct {
  *
  * @param kernelConfig La configuración del Kernel.
  */
-void iniciarConexiones(kernel_config_t* kernelConfig) {
+void iniciarConexiones() {
     // Iniciamos el servidor del Kernel
-    sockets.kernelSocket = iniciarServerProceso(kernelConfig->ipKernel, kernelConfig->puertoEscucha, "Kernel Server");
+    sockets = malloc(sizeof(socketsT));
+    sockets->kernelSocket = iniciarServerProceso(kernel_config->ipKernel, kernel_config->puertoEscucha, "Kernel Server");
     // Nos conectamos al servidor de Memoria
-    sockets.memoriaSocket = connectToServer(kernelConfig->ipMemoria,kernelConfig->puertoMemoria);
+    sockets->memoriaSocket = connectToServer(kernel_config->ipMemoria,kernel_config->puertoMemoria);
     // Nos conectamos al servidor de CPU para despacho
-    sockets.dispatchSocket = connectToServer(kernelConfig->ipCPU,kernelConfig->puertoCPUDispatch);
+    sockets->dispatchSocket = connectToServer(kernel_config->ipCPU,kernel_config->puertoCPUDispatch);
     // Nos conectamos al servidor de CPU para interrupciones
-    sockets.interruptSocket = connectToServer(kernelConfig->ipCPU,kernelConfig->puertoCPUInterrupt);
+    sockets->interruptSocket = connectToServer(kernel_config->ipCPU,kernel_config->puertoCPUInterrupt);
 }
 
 /**
@@ -49,50 +50,32 @@ void procesar_conexion(void* void_args) {
     char* server_name = args->server_name;
     free(args);
 
-    OP_CODES cop;
     // Entramos en un bucle donde recibimos y procesamos los mensajes de los clientes
     while (cliente_socket != -1) {
         // Recibimos el código de operación del mensaje
-        if (recv(cliente_socket, &cop, sizeof(OP_CODES), 0) != sizeof(OP_CODES)) {
-            log_info(logger, "DISCONNECT!");
-            return;
+        t_packet* packet = malloc(sizeof(t_packet));
+        if(recv_packet(cliente_socket, packet)) {
+            log_info(logger, "Recibido mensaje con código de operación: %d\n", packet->op_code);
         }
 
         // Procesamos el mensaje de acuerdo a su código de operación
-        switch (cop) {
-            /*case DEBUG_CODE:
-                log_info(logger, "debug");
+        switch (packet->op_code) {
+            case PCB: {
+                // Deserializamos el PCB
+                deserialize_pcb(packet->payload, packet->payload_size, pcb);
+                sem_post(&sem_pcb);
                 break;
-
-            case TEST:
-            {
-                char* cadena;
-                uint8_t cant;
-
-                if (!recv_test(cliente_socket, &cadena, &cant)) {
-                    log_error(logger, "Fallo recibiendo TEST");
-                    break;
-                }
-
-                log_info(logger, "Mirando %s con %" PRIu8 " cant.", cadena, cant);
-
-                free(cadena);
-                break;
-            }*/
-
+            }
             // Errores
             case -1:
                 log_error(logger, "Cliente desconectado de %s...", server_name);
-                return;
+                break;
             default:
-                log_error(logger, "Algo anduvo mal en el server de %s", server_name);
-                log_info(logger, "Cop: %d", cop);
-                return;
+                break;
         }
     }
 
     log_warning(logger, "El cliente se desconecto de %s server", server_name);
-    return;
 }
 
 /**
@@ -122,6 +105,17 @@ int server_escuchar(char* server_name, int* server_socket) {
     return 0;
 }
 
+// Escuchar al servidor conectado
+void cliente_escuchar(int* client_socket) {
+    // debo usar procesar_conexion y correrlo.
+    pthread_t hilo;
+    t_procesar_conexion_args* args = malloc(sizeof(t_procesar_conexion_args));
+    args->fd = *client_socket;
+    args->server_name = "test";
+    pthread_create(&hilo, NULL, (void*) procesar_conexion, (void*) args);
+    pthread_detach(hilo);
+}
+
 /**
  * @brief Escucha las conexiones entrantes de los clientes en un bucle.
  *
@@ -144,13 +138,13 @@ int phread_server_escuchar(void* server_socket){
  */
 void fin_conexion(){
     // Desconectamos el socket del servidor del Kernel
-    disconnectServer(sockets.kernelSocket);
+    disconnectServer(sockets->kernelSocket);
     // Desconectamos el socket de cliente de Memoria
-    disconnectClient(sockets.memoriaSocket);
+    disconnectClient(sockets->memoriaSocket);
     // Desconectamos el socket de cliente de CPU para despacho
-    disconnectClient(sockets.dispatchSocket);
+    disconnectClient(sockets->dispatchSocket);
     // Desconectamos el socket de cliente de CPU para interrupciones
-    disconnectClient(sockets.interruptSocket);
+    disconnectClient(sockets->interruptSocket);
     // Registramos un mensaje indicando que el servidor del Kernel ha terminado
     log_info(logger,"Terminado el Servidor Kernel");
     // Liberamos los recursos utilizados por el logger

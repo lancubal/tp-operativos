@@ -23,6 +23,8 @@ typedef struct {
     int gradoMultiprogramacion;
 } kernel_config_t;
 
-kernel_config_t* kernelConfigLoad(char* path);
+extern kernel_config_t* kernel_config;
+
+void kernelConfigLoad(char* path);
 
 #endif //TP_2024_1C_GRUPO_KERNEL_CONFIG_H

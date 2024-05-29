@@ -50,11 +50,9 @@ void RR_ALGORITHM(t_queue * ready_queue, int quantum) {
 }
 
 void FIFO_ALGORITHM(t_queue * ready_queue, int quantum) {
-    t_PCB * pcb = malloc(sizeof(t_PCB));
-    pcb = queue_pop(ready_queue);
     t_queue *block_queue = queue_create();
     while (true) {
-        if (pcb == NULL) {
+        if (queue_size(ready_queue) == 0) {
             if (queue_size(block_queue) == 0) {
                 break;
             }
@@ -64,19 +62,19 @@ void FIFO_ALGORITHM(t_queue * ready_queue, int quantum) {
             }
             queue_push(ready_queue, pcb);
         }
+
+        pcb = queue_pop(ready_queue);
         // Enviar PCB a CPU
         OP_CODES cop = PCB;
-        // TODO: Implementar el paquete
         // Enviar PCB en un paquete con el opcode PCB
-        send_packet(sockets.dispatchSocket, create_packet(cop, pcb->size, pcb, serialize_pcb));
-        //pcb->State = "EXEC";
+        pcb->State = "EXEC";
+        send_packet(sockets->dispatchSocket, create_packet(cop, pcb->size, pcb, serialize_pcb));
         log_info(logger, "Ejecutando proceso %d\n", pcb->PID);
 
-        // Recibir contexto actualizado del CPU
-        t_packet *pcb_packet = malloc(sizeof(t_packet));
-        if (recv_packet(sockets.dispatchSocket, pcb_packet)) {
-            log_info(logger, "Proceso %d se ejecuto\n", pcb->PID);
-        }
+        // Esperar al semaforo de que se recibio un contexto actualizado del PCB
+        sem_wait(&sem_pcb);
+
+        log_info(logger, "Proceso %d se ejecuto\n", pcb->PID);
 
         // Tengo que decidir si lo mando a BLOCK o a EXIT
         if (strcmp(pcb->State, "BLOCK") == 0) {
@@ -85,16 +83,16 @@ void FIFO_ALGORITHM(t_queue * ready_queue, int quantum) {
             log_info(logger, "Proceso %d se bloqueo\n", pcb->PID);
         } else if (strcmp(pcb->State, "EXIT") == 0) {
             log_info(logger, "Proceso %d termino\n", pcb->PID);
+            free(pcb);
         }
-        if(queue_size(ready_queue) != 0) // La funcion queue_pop debería de implementar este checkeo
-            pcb = queue_pop(ready_queue);
-        else
-            pcb = NULL;
     }
-    free(pcb);
+    queue_destroy(block_queue);
+    queue_destroy(ready_queue);
 }
 
-void SHORT_TERM_SCHEDULER(t_queue * ready_queue, const char* algo, int quantum) {
+void SHORT_TERM_SCHEDULER() {
+    char* algo = kernel_config->algoritmoPlanificacion;
+    int quantum = kernel_config->quantum;
     ALGORITHM algorithm;
     if (strcmp(algo, "VRR") == 0) {
         algorithm = VRR_ALGORITHM;

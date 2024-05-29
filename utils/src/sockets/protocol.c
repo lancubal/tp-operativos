@@ -148,6 +148,10 @@ bool recv_packet(int fd, t_packet* packet) {
         return false;
     }
 
+    if (size > 1000) {
+        return false;
+    }
+
     // Asignar memoria para el buffer
     char* buffer = malloc(size);
     if (buffer == NULL) {

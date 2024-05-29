@@ -22,4 +22,6 @@ add_executable(tp_2024_1c_grupo
         utils/src/utils/logger.c
         utils/src/utils/logger.h
         utils/src/utils/module.c
-        utils/src/utils/module.h)
+        utils/src/utils/module.h
+
+)

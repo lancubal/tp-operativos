@@ -17,6 +17,8 @@ typedef struct {
     int retardoRespuesta;
 } memoria_config_t;
 
-memoria_config_t* memoriaConfigLoad(char* path);
+extern memoria_config_t* memoria_config;
+
+void memoriaConfigLoad(char* path);
 
 #endif //TP_2024_1C_GRUPO_MEMORIA_CONFIG_H

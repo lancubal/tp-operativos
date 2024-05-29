@@ -12,11 +12,12 @@
  *
  * @param entradasalidaConfig La configuración de Entrada/Salida.
  */
-void iniciarConexiones(entradasalida_config_t * entradasalidaConfig){
+void iniciarConexiones(){
+    sockets = malloc(sizeof(socketsT));
     // Nos conectamos al servidor de Memoria utilizando la IP y el puerto especificados en la configuración de Entrada/Salida.
-    sockets.memoriaSocket = connectToServer(entradasalidaConfig->ipMemoria,entradasalidaConfig->puertoMemoria);
+    sockets->memoriaSocket = connectToServer(entradasalida_config->ipMemoria,entradasalida_config->puertoMemoria);
     // Nos conectamos al servidor de Kernel utilizando la IP y el puerto especificados en la configuración de Entrada/Salida.
-    sockets.kernelSocket = connectToServer(entradasalidaConfig->ipKernel,entradasalidaConfig->puertoKernel);
+    sockets->kernelSocket = connectToServer(entradasalida_config->ipKernel,entradasalida_config->puertoKernel);
 }
 
 /**
@@ -28,9 +29,9 @@ void iniciarConexiones(entradasalida_config_t * entradasalidaConfig){
  */
 void fin_conexion(){
     // Desconectamos el socket de cliente de Memoria
-    disconnectClient(sockets.memoriaSocket);
+    disconnectClient(sockets->memoriaSocket);
     // Desconectamos el socket de cliente de Kernel
-    disconnectClient(sockets.kernelSocket);
+    disconnectClient(sockets->kernelSocket);
     // Registramos un mensaje indicando que el servidor de Entrada/Salida ha terminado
     log_info(logger,"Terminado I/O");
     // Liberamos los recursos utilizados por el logger

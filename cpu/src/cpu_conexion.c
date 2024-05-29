@@ -16,14 +16,15 @@
  * @param cpuConfig La configuración de la CPU.
  */
 void iniciarConexiones(cpu_config_t* cpuConfig) {
+    sockets = malloc(sizeof(socketsT));
     // Iniciamos el servidor de despacho (Dispatch) utilizando la IP y el puerto especificados en la configuración de la CPU.
-    sockets.dispatchSocket = iniciarServerProceso(cpuConfig->ipCPU, cpuConfig->puertoEscuchaDispatch, "CPU Dispatch");
+    sockets->dispatchSocket = iniciarServerProceso(cpuConfig->ipCPU, cpuConfig->puertoEscuchaDispatch, "CPU Dispatch");
 
     // Iniciamos el servidor de interrupciones (Interrupt) utilizando la IP y el puerto especificados en la configuración de la CPU.
-    sockets.interruptSocket = iniciarServerProceso(cpuConfig->ipCPU, cpuConfig->puertoEscuchaInterrupt, "CPU Interrupt");
+    sockets->interruptSocket = iniciarServerProceso(cpuConfig->ipCPU, cpuConfig->puertoEscuchaInterrupt, "CPU Interrupt");
 
     // Nos conectamos al servidor de memoria utilizando la IP y el puerto especificados en la configuración de la CPU.
-    sockets.memoriaSocket = connectToServer(cpuConfig->ipMemoria,cpuConfig->puertoMemoria);
+    sockets->memoriaSocket = connectToServer(cpuConfig->ipMemoria,cpuConfig->puertoMemoria);
 }
 
 
@@ -42,24 +43,12 @@ void procesar_conexion(t_procesar_conexion_args* conexion_args) {
     int cliente_socket = conexion_args->fd;
     char* server_name = conexion_args->server_name;
 
-
     // Liberamos la memoria de la estructura de argumentos
     free(conexion_args);
 
-    // Declaramos una variable para almacenar el código de operación recibido
-    OP_CODES cop = 9999;
-
     // Entramos en un bucle donde recibimos y procesamos mensajes
     while (cliente_socket != -1) {
-        // Recibimos el código de operación del mensaje
-        /*if(recv_opcode(cliente_socket, &cop)) {
-            log_info(logger, "Recibido mensaje con código de operación: %d\n", cop);
-        }*/
-        // TODO: Implementar el paquete
-
-        /*if (recv_data(cliente_socket, &cop, sizeof(OP_CODES))) {
-            log_info(logger, "Recibido mensaje con código de operación: %d\n", cop);
-        }*/
+        // Recibir un paquete del cliente
         t_packet* packet = malloc(sizeof(t_packet));
         if (recv_packet(cliente_socket, packet)) {
             log_info(logger, "Recibido mensaje con código de operación: %d\n", packet->op_code);
@@ -71,36 +60,37 @@ void procesar_conexion(t_procesar_conexion_args* conexion_args) {
                 t_PCB *pcb = malloc(sizeof(t_PCB));
                 deserialize_pcb(packet->payload, packet->payload_size, pcb);
                 if(pcb != NULL) {
+                    // Cargo el contexto de ejecución y logeo los datos del PCB
+                    load_context(&CPU_Registers, &pcb->CPU_REGISTERS);
                     log_info(logger, "Recibido PCB con PID: %d\n", pcb->PID);
                     log_info(logger, "Recibido PCB con Estado: %s\n", pcb->State);
                     log_info(logger, "Recibido PCB con PC: %d\n", pcb->CPU_REGISTERS.PC);
-                    log_info(logger, "Recibido PCB con size: %zu\n", pcb->size);
-                    // Cargo el contexto de ejecución
-                    load_context(&CPU_Registers, &pcb->CPU_REGISTERS);
                     log_info(logger, "CPU PC %d", CPU_Registers.PC);
+
                     // Semaforo para avisarle a cpu_ciclo que ya se recibio el pcb
                     sem_post(&sem_pcb);
+
                     // Enviar PCB a CPU
                     sem_wait(&sem_fetch);
-                    //send_packet(sockets.memoriaSocket, create_packet(FETCH, 0, NULL, NULL));
+                    log_warning(logger, "Fetch terminado.");
+                    send_packet(cliente_socket, create_packet(PCB, pcb->size, pcb, serialize_pcb));
                 }
                 free(pcb);
                 break;
             }
             case -1: {
                 log_error(logger, "Cliente desconectado de %s...", server_name);
-                return;
+                break;
             }
             default: {
-                continue;
+                break;
             }
         }
-        cop = 9999;
+        destroy_packet(packet);
     }
 
     // Si el cliente se desconectó, registramos una advertencia
     log_warning(logger, "El cliente se desconecto de %s server", server_name);
-    return;
 }
 
 /**
@@ -156,10 +146,10 @@ int phread_server_escuchar(void* server_socket){
  */
 void fin_conexion(){
     // Desconectamos los sockets de servidor
-    disconnectServer(sockets.dispatchSocket);
-    disconnectServer(sockets.interruptSocket);
+    disconnectServer(sockets->dispatchSocket);
+    disconnectServer(sockets->interruptSocket);
     // Desconectamos el socket de cliente
-    disconnectClient(sockets.memoriaSocket);
+    disconnectClient(sockets->memoriaSocket);
     // Registramos un mensaje indicando que el servidor CPU ha terminado
     log_info(logger,"Terminado el Servidor CPU");
     // Liberamos los recursos utilizados por el logger

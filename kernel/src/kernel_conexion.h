@@ -15,11 +15,18 @@
 #include <pthread.h>
 #include <sockets/server.h>
 #include "sockets/protocol.h"
+#include "semaphore.h"
+#include "kernel_config.h"
 
-void iniciarConexiones(kernel_config_t* kernelConfig);
+extern t_PCB * pcb;
+extern sem_t sem_pcb;
+
+
+void iniciarConexiones();
 int server_escuchar(char* server_name, int*  server_socket);
 int phread_server_escuchar(void* server_socket);
 void procesar_conexion(void* void_args);
 void fin_conexion();
+void cliente_escuchar(int* client_socket);
 
 #endif //TP_2024_1C_GRUPO_KERNEL_CONEXION_H

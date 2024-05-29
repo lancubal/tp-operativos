@@ -8,6 +8,6 @@
 #include <entradasalida_config.h>
 #include <sockets/client.h>
 
-void iniciarConexiones(entradasalida_config_t* entradasalidaConfig);
+void iniciarConexiones();
 void fin_conexion();
 #endif //TP_2024_1C_GRUPO_ENTRADASALIDA_CONEXION_H

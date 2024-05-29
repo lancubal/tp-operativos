@@ -10,12 +10,13 @@ char* fetch() {
     log_warning(logger, "Fetching...");
     // Enviar el opcode FETCH a memoria
     // TODO: Implementar el paquete
-    OP_CODES opcode = FETCH;
+    //OP_CODES opcode = FETCH;
     //send_data(sockets.memoriaSocket, &opcode, sizeof(FETCH));
     // Envio PC
     //send_data(sockets.memoriaSocket, &CPU_Registers.PC, sizeof(CPU_Registers.PC));
     // Recibo la instruccion de memoria
-    char* instruccion = malloc(100);
+    char* instruccion;
+    instruccion = "instruccion";
     //recv_tad(sockets.memoriaSocket, (void*) &instruccion);
     CPU_Registers.PC++;
     sem_post(&sem_fetch);
@@ -33,7 +34,9 @@ void execute() {
 void cpu_ciclo() {
     // TODO: Implementar el ciclo de la CPU
     char* instruccion = malloc(100);
-    instruccion = fetch();
-    decode(instruccion);
-    execute();
+    while (true) {
+        instruccion = fetch();
+        //decode(instruccion);
+        //execute();
+    }
 }

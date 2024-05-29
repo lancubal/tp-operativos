@@ -14,30 +14,28 @@
  * @param path La ruta al archivo de configuración.
  * @return Un puntero a una estructura cpu_config_t que contiene la configuración de la CPU.
  */
-cpu_config_t* cpuConfigLoad(char* path) {
+void cpuConfigLoad(char* path) {
     // Obtenemos la configuración desde el archivo
     t_config* config = getConfig(path);
     // Creamos una nueva estructura para almacenar la configuración de la CPU
-    cpu_config_t* cpuConfig = malloc(sizeof(cpu_config_t));
+    cpu_config = malloc(sizeof(cpu_config_t));
 
     // Cargamos la dirección IP de la CPU
-    cpuConfig->ipCPU = config_get_string_value(config, "IP_CPU");
-    log_info(logger, "IP CPU: %s", cpuConfig->ipCPU);
+    cpu_config->ipCPU = config_get_string_value(config, "IP_CPU");
+    log_info(logger, "IP CPU: %s", cpu_config->ipCPU);
     // Cargamos la dirección IP de la memoria
-    cpuConfig->ipMemoria = config_get_string_value(config, "IP_MEMORIA");
+    cpu_config->ipMemoria = config_get_string_value(config, "IP_MEMORIA");
     // Cargamos el puerto de la memoria
-    cpuConfig->puertoMemoria = string_from_format("%d", config_get_int_value(config, "PUERTO_MEMORIA"));
+    cpu_config->puertoMemoria = string_from_format("%d", config_get_int_value(config, "PUERTO_MEMORIA"));
     // Cargamos el puerto de escucha del despachador
-    cpuConfig->puertoEscuchaDispatch = string_from_format("%d", config_get_int_value(config, "PUERTO_ESCUCHA_DISPATCH"));
+    cpu_config->puertoEscuchaDispatch = string_from_format("%d", config_get_int_value(config, "PUERTO_ESCUCHA_DISPATCH"));
     // Cargamos el puerto de escucha de las interrupciones
-    cpuConfig->puertoEscuchaInterrupt = string_from_format("%d", config_get_int_value(config, "PUERTO_ESCUCHA_INTERRUPT"));
+    cpu_config->puertoEscuchaInterrupt = string_from_format("%d", config_get_int_value(config, "PUERTO_ESCUCHA_INTERRUPT"));
     // Cargamos la cantidad de entradas de la TLB
-    cpuConfig->cantidadEntradasTLB = config_get_int_value(config, "CANTIDAD_ENTRADAS_TLB");
+    cpu_config->cantidadEntradasTLB = config_get_int_value(config, "CANTIDAD_ENTRADAS_TLB");
     // Cargamos el algoritmo de la TLB
-    cpuConfig->algoritmoTLB = config_get_string_value(config, "ALGORITMO_TLB");
+    cpu_config->algoritmoTLB = config_get_string_value(config, "ALGORITMO_TLB");
 
     // Registramos un mensaje indicando que la configuración ha sido cargada
     log_info(logger, "Configuracion cargada");
-    // Retornamos la configuración de la CPU
-    return cpuConfig;
 }

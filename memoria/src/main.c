@@ -9,11 +9,13 @@
 // Definición de la función sighandler que se ejecutará cuando se reciba la señal SIGINT (CTRL + C)
 void sighandler(int s);
 
+/*          VARIABLES GLOBALES          */
 // Declaración del logger que se utilizará para registrar los eventos del programa
-t_log *logger;
-
+t_log *logger = NULL;
+// Declaración de la estructura memoria_config_t que almacenará los datos de configuración de la memoria
+memoria_config_t* memoria_config = NULL;
 // Declaración de la estructura socketsT que almacenará los sockets utilizados en el programa
-socketsT sockets;
+socketsT* sockets = NULL;
 
 // Instrucciones de testeo
 char* instrucciones[] = {
@@ -49,10 +51,10 @@ int main(int argc, char* argv[]) {
     }
 
     // Carga de los datos de configuración desde el archivo especificado
-    memoria_config_t* memoriaConfig = memoriaConfigLoad(argv[1]);
+    memoriaConfigLoad(argv[1]);
 
     // Inicio de las conexiones utilizando los datos de configuración cargados
-    iniciarConexiones(memoriaConfig);
+    iniciarConexiones();
 
     // Escucha de conexiones entrantes hasta que no se establezcan más conexiones
     while(server_escuchar("Servidor Memoria"));

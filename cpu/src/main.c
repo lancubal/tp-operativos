@@ -4,17 +4,18 @@
 #include <cpu_ciclo.h>
 #include <signal.h>
 
-// Declaración de la estructura socketsT que almacenará los sockets utilizados en el programa
-socketsT sockets;
-
-// Declaración del logger que se utilizará para registrar los eventos del programa
-t_log *logger;
-
 // Definición de la función sighandler que se ejecutará cuando se reciba la señal SIGINT (CTRL + C)
 void sighandler(int s);
 
+/*         VARIABLES GLOBALES         */
+// Declaración del logger que se utilizará para registrar los eventos del programa
+t_log *logger;
+// Declaración de la estructura cpu_config_t que almacenará los datos de configuración de la CPU
+cpu_config_t *cpu_config = NULL;
+// Declaración de la estructura socketsT que almacenará los sockets utilizados en el programa
+socketsT* sockets;
+// Declaración de la estructura CPU_Registers que almacenará los registros de la CPU
 T_CPU_REGISTERS CPU_Registers = {0, 0, 0, 0, 0, 0, 0, 0};
-
 // Semaforos
 sem_t sem_pcb;
 sem_t sem_fetch;
@@ -39,18 +40,24 @@ int main(int argc, char* argv[]) {
     }
 
     // Carga de los datos de configuración desde el archivo especificado
-    cpu_config_t* cpuConfig = cpuConfigLoad(argv[1]);
+    cpuConfigLoad(argv[1]);
 
     // Inicio de las conexiones utilizando los datos de configuración cargados
-    iniciarConexiones(cpuConfig);
+    iniciarConexiones(cpu_config);
 
     // Creación de hilos para escuchar a los clientes
     pthread_t dispatch_thread;
-    pthread_create(&dispatch_thread,NULL,(void *)phread_server_escuchar,&sockets.dispatchSocket);
+    pthread_create(&dispatch_thread,NULL,(void *)phread_server_escuchar,&sockets->dispatchSocket);
     pthread_t interrupt_thread;
-    pthread_create(&interrupt_thread,NULL,(void *)phread_server_escuchar,&sockets.interruptSocket);
+    pthread_create(&interrupt_thread,NULL,(void *)phread_server_escuchar,&sockets->interruptSocket);
 
-    cpu_ciclo();
+    // Creacion de hilo para el ciclo de la cpu
+    pthread_t cpu_ciclo_thread;
+    pthread_create(&cpu_ciclo_thread,NULL,(void *)cpu_ciclo,NULL);
+
+    pthread_join(dispatch_thread,NULL);
+    pthread_join(interrupt_thread,NULL);
+    pthread_join(cpu_ciclo_thread,NULL);
 
     // Finalización de todas las conexiones y liberación de los recursos utilizados
     fin_conexion(&sockets);

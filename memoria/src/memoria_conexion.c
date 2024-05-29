@@ -22,9 +22,10 @@ typedef struct {
  *
  * @param memoriaConfig La configuración de la Memoria.
  */
-void iniciarConexiones(memoria_config_t* memoriaConfig) {
+void iniciarConexiones() {
     // Iniciamos el servidor de Memoria utilizando la IP y el puerto especificados en la configuración de la Memoria.
-    sockets.memoriaSocket = iniciarServerProceso(memoriaConfig->ipMemoria, memoriaConfig->puertoEscucha, "Memoria");
+    sockets = malloc(sizeof(socketsT));
+    sockets->memoriaSocket = iniciarServerProceso(memoria_config->ipMemoria, memoria_config->puertoEscucha, "Memoria");
 }
 
 /**
@@ -42,7 +43,6 @@ void procesar_conexion(void* void_args) {
     char* server_name = args->server_name;
     free(args);
 
-    OP_CODES cop;
     // Entramos en un bucle donde recibimos y procesamos los mensajes de los clientes
     while (cliente_socket != -1) {
         // TODO: Implementar el paquete
@@ -84,7 +84,7 @@ void procesar_conexion(void* void_args) {
                 return;
             default:
                 log_error(logger, "Algo anduvo mal en el server de %s", server_name);
-                log_info(logger, "Cop: %d", cop);
+                log_info(logger, "Cop: %d", packet->op_code);
                 return;
         }
     }
@@ -104,7 +104,7 @@ void procesar_conexion(void* void_args) {
  */
 int server_escuchar(char* server_name) {
     // Esperamos una nueva conexión de un cliente
-    int cliente_socket = esperar_cliente(server_name, sockets.memoriaSocket);
+    int cliente_socket = esperar_cliente(server_name, sockets->memoriaSocket);
 
 
     // Si se estableció una nueva conexión, creamos un nuevo hilo para procesarla
@@ -128,7 +128,7 @@ int server_escuchar(char* server_name) {
  */
 void fin_conexion(){
     // Desconectamos el socket del servidor de la Memoria
-    disconnectServer(sockets.memoriaSocket);
+    disconnectServer(sockets->memoriaSocket);
     // Registramos un mensaje indicando que el servidor de la Memoria ha terminado
     log_info(logger,"Terminado el Servidor Memoria");
     // Liberamos los recursos utilizados por el logger
