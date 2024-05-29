@@ -45,7 +45,6 @@ void procesar_conexion(void* void_args) {
 
     // Entramos en un bucle donde recibimos y procesamos los mensajes de los clientes
     while (cliente_socket != -1) {
-        // TODO: Implementar el paquete
         // Recibir un paquete
         t_packet* packet = malloc(sizeof(t_packet));
         if(recv_packet(cliente_socket, packet)) {
@@ -55,29 +54,13 @@ void procesar_conexion(void* void_args) {
         switch (packet->op_code) {
             case FETCH: {
                 // Recibir un PC
-                log_warning(logger, "Llego FETCH");
+                uint32_t pc;
+                memcpy(&pc, packet->payload, packet->payload_size);
+                log_info(logger, "Recibido PC: %d", pc);
+                char* instruccion = instrucciones[pc];
+                send_packet(cliente_socket, create_packet(FETCH, strlen(instruccion), instruccion, NULL));
                 break;
             }
-            /*case DEBUG_CODE:
-                log_info(logger, "debug");
-                break;
-
-            case TEST:
-            {
-                char* cadena;
-                uint8_t cant;
-
-                if (!recv_test(cliente_socket, &cadena, &cant)) {
-                    log_error(logger, "Fallo recibiendo TEST");
-                    break;
-                }
-
-                log_info(logger, "Mirando %s con %" PRIu8 " cant.", cadena, cant);
-
-                free(cadena);
-                break;
-            }*/
-
             // Errores
             case ERROR_OP:
                 log_error(logger, "Cliente desconectado de %s...", server_name);
@@ -90,7 +73,6 @@ void procesar_conexion(void* void_args) {
     }
 
     log_warning(logger, "El cliente se desconecto de %s server", server_name);
-    return;
 }
 
 /**

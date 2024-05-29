@@ -84,10 +84,6 @@ void procesar_conexion(t_procesar_conexion_args* conexion_args) {
                 memcpy(instruccion, packet->payload, packet->payload_size);
                 sem_post(&sem_instruccion);
             }
-            case -1: {
-                log_error(logger, "Cliente desconectado de %s...", server_name);
-                break;
-            }
             default: {
                 break;
             }

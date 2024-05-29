@@ -10,7 +10,7 @@ void fetch() {
     send_packet(sockets->memoriaSocket, create_packet(FETCH, sizeof(CPU_Registers.PC), &CPU_Registers.PC, NULL));
     // Semaforo para esperar la instruccion de memoria
     sem_wait(&sem_instruccion);
-    // semaforo
+    log_warning(logger, "Instruccion recibida: %s", instruccion);
     CPU_Registers.PC++;
 }
 
