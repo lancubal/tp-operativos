@@ -45,15 +45,26 @@ void procesar_conexion(void* void_args) {
     OP_CODES cop;
     // Entramos en un bucle donde recibimos y procesamos los mensajes de los clientes
     while (cliente_socket != -1) {
+        // TODO: Implementar el paquete
         // Recibimos el código de operación del mensaje
-        if (recv(cliente_socket, &cop, sizeof(OP_CODES), 0) != sizeof(OP_CODES)) {
-            log_info(logger, "DISCONNECT!");
-            return;
+        if (recv_data(cliente_socket, &cop, sizeof(OP_CODES))) {
+            log_info(logger, "Recibido mensaje con código de operación: %d\n", cop);
         }
-
         // Procesamos el mensaje de acuerdo a su código de operación
         switch (cop) {
-            case DEBUG_CODE:
+            case FETCH: {
+                // Recibir un PC
+                uint32_t pc;
+                if (!recv_data(cliente_socket, &pc, sizeof(uint32_t))) {
+                    log_error(logger, "Fallo recibiendo PC");
+                    break;
+                }
+                log_info(logger, "Recibido PC: %" PRIu32, pc);
+                // Enviar la instruccion a ejecutar
+                send_data(cliente_socket, instrucciones[pc], strlen(instrucciones[pc]) + 1);
+                break;
+            }
+            /*case DEBUG_CODE:
                 log_info(logger, "debug");
                 break;
 
@@ -71,7 +82,7 @@ void procesar_conexion(void* void_args) {
 
                 free(cadena);
                 break;
-            }
+            }*/
 
             // Errores
             case ERROR_OP:

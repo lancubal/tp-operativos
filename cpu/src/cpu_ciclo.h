@@ -10,9 +10,15 @@
 #include <utils/module_tads.h>
 #include <sockets/protocol.h>
 #include "utils/logger.h"
+#include <semaphore.h>
+#include "sockets/client.h"
+
+extern T_CPU_REGISTERS CPU_Registers;
+extern sem_t sem_pcb;
+extern sem_t sem_fetch;
 
 t_PCB* pcb_recv(int socketMemoria);
-char* fetch(uint32_t PC, int socketMemoria);
+void cpu_ciclo();
 
 
 #endif //TP_2024_1C_GRUPO_CPU_CICLO_H

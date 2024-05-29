@@ -60,7 +60,7 @@ void procesar_conexion(void* void_args) {
 
         // Procesamos el mensaje de acuerdo a su código de operación
         switch (cop) {
-            case DEBUG_CODE:
+            /*case DEBUG_CODE:
                 log_info(logger, "debug");
                 break;
 
@@ -78,7 +78,7 @@ void procesar_conexion(void* void_args) {
 
                 free(cadena);
                 break;
-            }
+            }*/
 
             // Errores
             case -1:

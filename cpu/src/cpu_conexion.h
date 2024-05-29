@@ -15,6 +15,7 @@
 #include <sockets/server.h>
 #include <sockets/client.h>
 #include "sockets/protocol.h"
+#include <semaphore.h>
 
 // Definimos una estructura para almacenar los argumentos necesarios para procesar una conexión.
 // Esta estructura contiene el descriptor de archivo del socket y el nombre del servidor.
@@ -22,6 +23,10 @@ typedef struct {
     int fd;             // Descriptor de archivo del socket
     char* server_name;  // Nombre del servidor
 } t_procesar_conexion_args;
+
+extern T_CPU_REGISTERS CPU_Registers;
+extern sem_t sem_pcb;
+extern sem_t sem_fetch;
 
 void iniciarConexiones(cpu_config_t* cpuConfig);
 int server_escuchar(char* server_name, const int*  server_socket);

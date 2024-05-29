@@ -4,24 +4,36 @@
 
 #include "cpu_ciclo.h"
 
-t_PCB* pcb_recv(int socketDispatch) { // recibir un pcb
-    t_PCB* pcb = malloc(sizeof (t_PCB));
-    if(recv_tad(socketDispatch, (void**) pcb)) {
-        log_info(logger, "Recibido PCB con PID: %d\n", pcb->PID);
-        return pcb;
-    }
-    return NULL;
+char* fetch() {
+    log_warning(logger, "Esperando semaforo...");
+    sem_wait(&sem_pcb);
+    log_warning(logger, "Fetching...");
+    // Enviar el opcode FETCH a memoria
+    // TODO: Implementar el paquete
+    OP_CODES opcode = FETCH;
+    send_data(sockets.memoriaSocket, &opcode, sizeof(FETCH));
+    // Envio PC
+    send_data(sockets.memoriaSocket, &CPU_Registers.PC, sizeof(CPU_Registers.PC));
+    // Recibo la instruccion de memoria
+    char* instruccion = malloc(100);
+    recv_tad(sockets.memoriaSocket, (void*) &instruccion);
+    CPU_Registers.PC++;
+    sem_post(&sem_fetch);
+    return instruccion;
 }
 
-/*char* fetch(uint32_t PC, int socketMemoria) { // TODO: Implementar
-    sendMessage("next ins", socketMemoria);
+void decode(char* instruccion) {
+    // TODO: Decodificar la instruccion
+}
 
-    //Hilo para getMessasge y retornar el mensaje
-    pthread_t getMessageTH;
-    pthread_create(&getMessageTH, NULL, (void*) getMessage, (void*) &socketMemoria);
-    char* instruccion = malloc(sizeof (char) * 100);
-    pthread_join(getMessageTH, (void*) instruccion);
+void execute() {
+    // TODO: Ejecutar la instruccion
+}
 
-
-    return instruccion;
-}*/
+void cpu_ciclo() {
+    // TODO: Implementar el ciclo de la CPU
+    char* instruccion = malloc(100);
+    instruccion = fetch();
+    decode(instruccion);
+    execute();
+}

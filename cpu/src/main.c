@@ -13,9 +13,11 @@ t_log *logger;
 // Definición de la función sighandler que se ejecutará cuando se reciba la señal SIGINT (CTRL + C)
 void sighandler(int s);
 
-T_CPU_REGISTERS* CPU_Registers;
+T_CPU_REGISTERS CPU_Registers = {0, 0, 0, 0, 0, 0, 0, 0};
 
+// Semaforos
 sem_t sem_pcb;
+sem_t sem_fetch;
 
 // Función principal del programa
 int main(int argc, char* argv[]) {
@@ -38,9 +40,6 @@ int main(int argc, char* argv[]) {
 
     // Carga de los datos de configuración desde el archivo especificado
     cpu_config_t* cpuConfig = cpuConfigLoad(argv[1]);
-
-    // Inicializo los registros de la CPU
-    CPU_Registers = malloc(sizeof(T_CPU_REGISTERS));
 
     // Inicio de las conexiones utilizando los datos de configuración cargados
     iniciarConexiones(cpuConfig);

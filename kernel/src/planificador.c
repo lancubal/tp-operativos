@@ -28,6 +28,7 @@ void VRR_ALGORITHM(t_queue * ready_queue, int quantum) {
 void RR_ALGORITHM(t_queue * ready_queue, int quantum) {
     t_PCB * pcb = queue_pop(ready_queue);
     while (pcb != NULL) {
+        // TODO: Implementar el paquete
         send_tad(sockets.dispatchSocket, pcb, &pcb->size);
         pcb->State = "EXEC";
         log_info(logger, "Ejecutando proceso %d\n", pcb->PID);
@@ -64,11 +65,18 @@ void FIFO_ALGORITHM(t_queue * ready_queue, int quantum) {
             queue_push(ready_queue, pcb);
         }
         // Enviar PCB a CPU
-        send_opcode(sockets.dispatchSocket, PCB);
-        send_tad(sockets.dispatchSocket, pcb, &pcb->size);
+        OP_CODES cop = PCB;
+        // TODO: Implementar el paquete
+        send_data(sockets.dispatchSocket, &cop, sizeof(OP_CODES));
+        send_tad(sockets.dispatchSocket, pcb, pcb->size);
         pcb->State = "EXEC";
         log_info(logger, "Ejecutando proceso %d\n", pcb->PID);
-        recv_tad(sockets.dispatchSocket, (void **) &pcb);
+
+        // Recibir contexto actualizado del CPU
+        if (recv_tad(sockets.dispatchSocket, (void **) &pcb)) {
+            log_info(logger, "Proceso %d se ejecuto\n", pcb->PID);
+        }
+
         // Tengo que decidir si lo mando a BLOCK o a EXIT
         if (strcmp(pcb->State, "BLOCK") == 0) {
             // Enviar PCB a CPU

@@ -15,6 +15,19 @@ t_log *logger;
 // Declaración de la estructura socketsT que almacenará los sockets utilizados en el programa
 socketsT sockets;
 
+// Instrucciones de testeo
+char* instrucciones[] = {
+        "INICIAR",
+        "LEER",
+        "ESCRIBIR",
+        "FINALIZAR",
+        // relleno
+        "INICIAR",
+        "LEER",
+        "ESCRIBIR",
+        "FINALIZAR",
+};
+
 // Función principal del programa
 int main(int argc, char* argv[]) {
     // Manejo de la señales

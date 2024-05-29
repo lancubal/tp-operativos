@@ -23,6 +23,8 @@ int main(int argc, char* argv[]) {
     signal(SIGPIPE, sighandler);
     signal(SIGSEGV, sighandler);
 
+
+
     // Inicialización del logger
     logger = loggerCreate();
     // Registro de un mensaje en el logger indicando que se está iniciando el kernel
@@ -49,10 +51,12 @@ int main(int argc, char* argv[]) {
     //kernelUserInterfaceStart(&sockets);
 
     // Inicio del planificador
+    // Push to ready_queue 5 random PCB
     t_queue* ready_queue = queue_create();
-    // Generate 5 random PCB
+    T_CPU_REGISTERS* registers;
     for (int i = 1; i <= 5; i++) {
-        queue_push(ready_queue, init_PCB(i,i+3,i+23));
+        registers = init_CPU_REGISTERS(i, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        queue_push(ready_queue, init_PCB(i, 99, "NEW", registers));
     }
 
     SHORT_TERM_SCHEDULER(ready_queue, kernelConfig->algoritmoPlanificacion, 99);

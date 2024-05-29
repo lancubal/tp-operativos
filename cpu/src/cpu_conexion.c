@@ -42,6 +42,7 @@ void procesar_conexion(t_procesar_conexion_args* conexion_args) {
     int cliente_socket = conexion_args->fd;
     char* server_name = conexion_args->server_name;
 
+
     // Liberamos la memoria de la estructura de argumentos
     free(conexion_args);
 
@@ -51,10 +52,13 @@ void procesar_conexion(t_procesar_conexion_args* conexion_args) {
     // Entramos en un bucle donde recibimos y procesamos mensajes
     while (cliente_socket != -1) {
         // Recibimos el código de operación del mensaje
-        if(recv_opcode(cliente_socket, &cop)) {
+        /*if(recv_opcode(cliente_socket, &cop)) {
             log_info(logger, "Recibido mensaje con código de operación: %d\n", cop);
-        } else {
-            break;
+        }*/
+        // TODO: Implementar el paquete
+
+        if (recv_data(cliente_socket, &cop, sizeof(OP_CODES))) {
+            log_info(logger, "Recibido mensaje con código de operación: %d\n", cop);
         }
 
         switch (cop) {
@@ -62,8 +66,17 @@ void procesar_conexion(t_procesar_conexion_args* conexion_args) {
                 t_PCB *pcb = malloc(sizeof(t_PCB));
                 if(recv_tad(cliente_socket, (void**) &pcb)) {
                     log_info(logger, "Recibido PCB con PID: %d\n", pcb->PID);
+                    log_info(logger, "Recibido PCB con Estado: %s\n", pcb->State);
+                    log_info(logger, "Recibido PCB con PC: %d\n", pcb->CPU_REGISTERS.PC);
+                    log_info(logger, "Recibido PCB con size: %zu\n", pcb->size);
+                    // Cargo el contexto de ejecución
+                    load_context(&CPU_Registers, &pcb->CPU_REGISTERS);
+                    log_info(logger, "CPU PC %d", CPU_Registers.PC);
+                    // Semaforo para avisarle a cpu_ciclo que ya se recibio el pcb
+                    sem_post(&sem_pcb);
                     // Enviar PCB a CPU
-                    send_tad(cliente_socket, pcb, &pcb->size);
+                    sem_wait(&sem_fetch);
+                    send_tad(cliente_socket, pcb, pcb->size);
                 }
                 free(pcb);
                 break;
@@ -76,60 +89,13 @@ void procesar_conexion(t_procesar_conexion_args* conexion_args) {
                 continue;
             }
         }
-        /*
-        // Recibimos el código de operación del mensaje
-        if (recv(cliente_socket, &cop, sizeof(op_code_NUESTRO), 0) != sizeof(op_code_NUESTRO)) {
-            // Si no se pudo recibir el código de operación, registramos la desconexión y terminamos la función
-            log_info(logger, "DISCONNECT!");
-            return;
-        }
-
-        // Procesamos el mensaje de acuerdo a su código de operación
-        switch (cop) {
-            case DEBUG_CODE:
-                // Si el código de operación es DEBUG_CODE, registramos un mensaje de debug
-                log_info(logger, "debug");
-                break;
-
-            case TEST:
-            {
-                // Si el código de operación es TEST, recibimos una cadena y una cantidad
-                char* cadena;
-                uint8_t cant;
-
-                // Si no se pudo recibir la cadena y la cantidad, registramos un error y continuamos con el siguiente mensaje
-                if (!recv_test(cliente_socket, &cadena, &cant)) {
-                    log_error(logger, "Fallo recibiendo TEST");
-                    break;
-                }
-
-                // Registramos la cadena y la cantidad recibidas
-                log_info(logger, "Mirando %s con %" PRIu8 " cant.", cadena, cant);
-
-                // Liberamos la memoria de la cadena recibida
-                free(cadena);
-                break;
-            }
-
-            // Errores
-            case -1:
-                // Si el código de operación es -1, registramos la desconexión del cliente y terminamos la función
-                log_error(logger, "Cliente desconectado de %s...", server_name);
-                return;
-            default:
-                // Si el código de operación no es ninguno de los anteriores, registramos un error y terminamos la función
-                log_error(logger, "Algo anduvo mal en el server de %s", server_name);
-                log_info(logger, "Cop: %d", cop);
-                return;
-        }*/
+        cop = 9999;
     }
 
     // Si el cliente se desconectó, registramos una advertencia
     log_warning(logger, "El cliente se desconecto de %s server", server_name);
     return;
 }
-
-
 
 /**
  * @brief Escucha conexiones entrantes en un socket de servidor.

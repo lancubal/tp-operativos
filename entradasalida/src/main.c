@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
 
     // Prueba de envío de mensajes
     int a;
-    while (1)
+    /*while (1)
     {
         // Bloqueo del programa para esperar la entrada del usuario
         scanf("%d", &a);
@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
         send_test(sockets.memoriaSocket, "Perro", 10);
         // Envío de un mensaje de prueba al socket del kernel
         send_test(sockets.kernelSocket, "Gato", 1);
-    }
+    }*/
 
     // Finalización de todas las conexiones y liberación de los recursos utilizados
     fin_conexion(logger,&sockets);
