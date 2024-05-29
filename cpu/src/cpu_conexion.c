@@ -57,14 +57,20 @@ void procesar_conexion(t_procesar_conexion_args* conexion_args) {
         }*/
         // TODO: Implementar el paquete
 
-        if (recv_data(cliente_socket, &cop, sizeof(OP_CODES))) {
+        /*if (recv_data(cliente_socket, &cop, sizeof(OP_CODES))) {
             log_info(logger, "Recibido mensaje con código de operación: %d\n", cop);
+        }*/
+        t_packet* packet = malloc(sizeof(t_packet));
+        if (recv_packet(cliente_socket, packet)) {
+            log_info(logger, "Recibido mensaje con código de operación: %d\n", packet->op_code);
         }
 
-        switch (cop) {
+        switch (packet->op_code) {
             case PCB: {
+                // Deserializo el PCB
                 t_PCB *pcb = malloc(sizeof(t_PCB));
-                if(recv_tad(cliente_socket, (void**) &pcb)) {
+                deserialize_pcb(packet->payload, packet->payload_size, pcb);
+                if(pcb != NULL) {
                     log_info(logger, "Recibido PCB con PID: %d\n", pcb->PID);
                     log_info(logger, "Recibido PCB con Estado: %s\n", pcb->State);
                     log_info(logger, "Recibido PCB con PC: %d\n", pcb->CPU_REGISTERS.PC);
@@ -76,7 +82,7 @@ void procesar_conexion(t_procesar_conexion_args* conexion_args) {
                     sem_post(&sem_pcb);
                     // Enviar PCB a CPU
                     sem_wait(&sem_fetch);
-                    send_tad(cliente_socket, pcb, pcb->size);
+                    //send_packet(sockets.memoriaSocket, create_packet(FETCH, 0, NULL, NULL));
                 }
                 free(pcb);
                 break;

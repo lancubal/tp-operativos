@@ -11,12 +11,12 @@ char* fetch() {
     // Enviar el opcode FETCH a memoria
     // TODO: Implementar el paquete
     OP_CODES opcode = FETCH;
-    send_data(sockets.memoriaSocket, &opcode, sizeof(FETCH));
+    //send_data(sockets.memoriaSocket, &opcode, sizeof(FETCH));
     // Envio PC
-    send_data(sockets.memoriaSocket, &CPU_Registers.PC, sizeof(CPU_Registers.PC));
+    //send_data(sockets.memoriaSocket, &CPU_Registers.PC, sizeof(CPU_Registers.PC));
     // Recibo la instruccion de memoria
     char* instruccion = malloc(100);
-    recv_tad(sockets.memoriaSocket, (void*) &instruccion);
+    //recv_tad(sockets.memoriaSocket, (void*) &instruccion);
     CPU_Registers.PC++;
     sem_post(&sem_fetch);
     return instruccion;

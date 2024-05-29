@@ -40,6 +40,7 @@ T_CPU_REGISTERS* init_CPU_REGISTERS(uint32_t PC, uint8_t AX, uint8_t BX, uint8_t
 
 // Funcion para cargar el contexto de ejecucion
 void load_context(T_CPU_REGISTERS* old_registers, T_CPU_REGISTERS* new_registers) {
+    old_registers->PC = new_registers->PC;
     old_registers->AX = new_registers->AX;
     old_registers->BX = new_registers->BX;
     old_registers->CX = new_registers->CX;

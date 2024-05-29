@@ -46,22 +46,16 @@ void procesar_conexion(void* void_args) {
     // Entramos en un bucle donde recibimos y procesamos los mensajes de los clientes
     while (cliente_socket != -1) {
         // TODO: Implementar el paquete
-        // Recibimos el código de operación del mensaje
-        if (recv_data(cliente_socket, &cop, sizeof(OP_CODES))) {
-            log_info(logger, "Recibido mensaje con código de operación: %d\n", cop);
+        // Recibir un paquete
+        t_packet* packet = malloc(sizeof(t_packet));
+        if(recv_packet(cliente_socket, packet)) {
+            log_info(logger, "Recibido mensaje con código de operación: %d\n", packet->op_code);
         }
         // Procesamos el mensaje de acuerdo a su código de operación
-        switch (cop) {
+        switch (packet->op_code) {
             case FETCH: {
                 // Recibir un PC
-                uint32_t pc;
-                if (!recv_data(cliente_socket, &pc, sizeof(uint32_t))) {
-                    log_error(logger, "Fallo recibiendo PC");
-                    break;
-                }
-                log_info(logger, "Recibido PC: %" PRIu32, pc);
-                // Enviar la instruccion a ejecutar
-                send_data(cliente_socket, instrucciones[pc], strlen(instrucciones[pc]) + 1);
+                log_warning(logger, "Llego FETCH");
                 break;
             }
             /*case DEBUG_CODE:

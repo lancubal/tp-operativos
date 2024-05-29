@@ -29,7 +29,7 @@ void RR_ALGORITHM(t_queue * ready_queue, int quantum) {
     t_PCB * pcb = queue_pop(ready_queue);
     while (pcb != NULL) {
         // TODO: Implementar el paquete
-        send_tad(sockets.dispatchSocket, pcb, &pcb->size);
+        //send_tad(sockets.dispatchSocket, pcb, &pcb->size);
         pcb->State = "EXEC";
         log_info(logger, "Ejecutando proceso %d\n", pcb->PID);
         pcb->Quantum = quantum;
@@ -38,7 +38,7 @@ void RR_ALGORITHM(t_queue * ready_queue, int quantum) {
             if (pcb->Quantum == 0) {
                 // Desalojar de CPU
                 // TODO
-                send_tad(sockets.interruptSocket, pcb, &pcb->size);
+                //send_tad(sockets.interruptSocket, pcb, &pcb->size);
                 pcb->State = "READY";
                 log_info(logger, "Proceso %d se quedo sin quantum\n", pcb->PID);
                 break;
@@ -67,13 +67,14 @@ void FIFO_ALGORITHM(t_queue * ready_queue, int quantum) {
         // Enviar PCB a CPU
         OP_CODES cop = PCB;
         // TODO: Implementar el paquete
-        send_data(sockets.dispatchSocket, &cop, sizeof(OP_CODES));
-        send_tad(sockets.dispatchSocket, pcb, pcb->size);
-        pcb->State = "EXEC";
+        // Enviar PCB en un paquete con el opcode PCB
+        send_packet(sockets.dispatchSocket, create_packet(cop, pcb->size, pcb, serialize_pcb));
+        //pcb->State = "EXEC";
         log_info(logger, "Ejecutando proceso %d\n", pcb->PID);
 
         // Recibir contexto actualizado del CPU
-        if (recv_tad(sockets.dispatchSocket, (void **) &pcb)) {
+        t_packet *pcb_packet = malloc(sizeof(t_packet));
+        if (recv_packet(sockets.dispatchSocket, pcb_packet)) {
             log_info(logger, "Proceso %d se ejecuto\n", pcb->PID);
         }
 
