@@ -12,26 +12,33 @@
 #include <utils/module_tads.h>
 #include <utils/logger.h>
 
+
+// Codigos de CPU comienzan en 1XX, codigos de memoria en 2XX, codigos de kernel en 3XX, codigos de io en 4XX
 typedef enum {
-    TEST = 10,
-    PCB = 20,
-    DEBUG_CODE = 69,
+    FETCH = 100,
+    PCB = 310,
     ERROR_OP = -1 
 } OP_CODES;
 
-bool send_test(int fd, char*  cadena, uint8_t  cant);
-bool recv_test(int fd, char** cadena, uint8_t* cant);
+typedef struct {
+    // Header
+    OP_CODES op_code;
+    size_t payload_size;
+    // Payload
+    char* payload;
+} t_packet;
 
-void* serializer(void *tad, const size_t *size);
-void* deserializer(void *stream, const size_t *size);
-bool send_tad(int fd, void* tad, const size_t *size);
-bool recv_tad(int fd, void** tad);
+// Serializers and deserializers
+typedef void (*serializer)(void *data, char **buffer, size_t *size);
+void serialize_packet(void* packet, char** buffer, size_t *size);
+void deserialize_packet(char* buffer, size_t size, t_packet* packet);
+void serialize_pcb(void* pcb, char** buffer, size_t *size);
+void deserialize_pcb(char* buffer, size_t size, t_PCB* pcb);
 
-bool send_opcode(int fd, OP_CODES op);
-bool recv_opcode(int fd, OP_CODES* op);
-
-
-
-bool send_debug(int fd);
+// Packet management
+t_packet* create_packet(OP_CODES op_code, size_t payload_size, void* data, serializer serializer_func);
+bool destroy_packet(t_packet* packet);
+bool send_packet(int fd, t_packet* packet);
+bool recv_packet(int fd, t_packet* packet);
 
 #endif

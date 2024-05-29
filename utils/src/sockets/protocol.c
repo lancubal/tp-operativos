@@ -2,99 +2,219 @@
 #include <errno.h>
 #include "protocol.h"
 
-bool send_opcode(int fd, OP_CODES opcode) {
-    // Enviar el opcode
-    ssize_t bytes_sent = send(fd, &opcode, sizeof(OP_CODES), 0);
-    if (bytes_sent < 0) {
-        log_error(logger, "Error al enviar el opcode: %s", strerror(errno));
-        return false;
+// Serializers and deserializers
+void serialize_packet(void* data, char** buffer, size_t *size) {
+    t_packet *packet = (t_packet *) data; // Convertir el puntero genérico a un puntero de paquete
+    // Asignar memoria para el buffer
+    *size = sizeof(OP_CODES) + sizeof(size_t) + packet->payload_size;
+    *buffer = malloc(*size);
+    if (*buffer == NULL) {
+        log_error(logger, "Error al asignar memoria para el buffer: %s", strerror(errno));
+        return;
     }
 
-    // Verificar si se envió el tamaño correcto
-    if ((size_t)bytes_sent != sizeof(OP_CODES)) {
-        log_error(logger, "Error al enviar el opcode: tamaño incorrecto");
-        return false;
+    // Copiar los datos del paquete en el buffer
+    size_t offset = 0; // Desplazamiento en el buffer
+    memcpy(*buffer, &packet->op_code, sizeof(OP_CODES)); // Copiar el código de operación
+    offset += sizeof(OP_CODES);
+    memcpy(*buffer + sizeof(OP_CODES), &packet->payload_size, sizeof(size_t)); // Copiar el tamaño del payload
+    offset += sizeof(size_t);
+    memcpy(*buffer + sizeof(OP_CODES) + sizeof(size_t), packet->payload, packet->payload_size); // Copiar el payload
+}
+
+void deserialize_packet(char* buffer, size_t size, t_packet* packet) {
+    // Copiar los datos del buffer en el paquete
+    size_t offset = 0; // Desplazamiento en el buffer
+    memcpy(&packet->op_code, buffer, sizeof(OP_CODES)); // Copiar el código de operación
+    offset += sizeof(OP_CODES);
+    memcpy(&packet->payload_size, buffer + sizeof(OP_CODES), sizeof(size_t)); // Copiar el tamaño del payload
+    offset += sizeof(size_t);
+    // Asignar memoria para el payload
+    packet->payload = malloc(packet->payload_size);
+    if (packet->payload == NULL) {
+        log_error(logger, "Error al asignar memoria para el payload: %s", strerror(errno));
+        return;
+    }
+    // Copiar los datos del buffer en el payload
+    memcpy(packet->payload, buffer + sizeof(OP_CODES) + sizeof(size_t), packet->payload_size);
+}
+
+void serialize_pcb(void* data, char** buffer, size_t *size) {
+    t_PCB *pcb = (t_PCB *) data; // Convertir el puntero genérico a un puntero de PCB
+    // Calcular el tamaño del PCB
+    *size = sizeof(pcb->PID) + sizeof(pcb->Quantum) + strlen(pcb->State) + 1 + sizeof(pcb->CPU_REGISTERS);
+
+    // Asignar memoria para el buffer
+    *buffer = malloc(*size);
+    if (*buffer == NULL) {
+        log_error(logger, "Error al asignar memoria para el buffer: %s", strerror(errno));
+        return;
     }
 
-    // El opcode se envió correctamente
+    // Copiar los datos del PCB en el buffer
+    size_t offset = 0; // Desplazamiento en el buffer
+    memcpy(*buffer + offset, &pcb->PID, sizeof(pcb->PID)); // Copiar el PID
+    offset += sizeof(pcb->PID);
+    memcpy(*buffer + offset, &pcb->Quantum, sizeof(pcb->Quantum)); // Copiar el Quantum
+    offset += sizeof(pcb->Quantum);
+    memcpy(*buffer + offset, pcb->State, strlen(pcb->State) + 1); // Copiar el Estado
+    offset += strlen(pcb->State) + 1;
+    memcpy(*buffer + offset, &pcb->CPU_REGISTERS, sizeof(pcb->CPU_REGISTERS)); // Copiar los registros de la CPU
+}
+
+void deserialize_pcb(char* buffer, size_t size, t_PCB* pcb) {
+    // Copiar los datos del buffer en el PCB
+    size_t offset = 0; // Desplazamiento en el buffer
+    memcpy(&pcb->PID, buffer + offset, sizeof(pcb->PID)); // Copiar el PID
+    offset += sizeof(pcb->PID);
+    memcpy(&pcb->Quantum, buffer + offset, sizeof(pcb->Quantum)); // Copiar el Quantum
+    offset += sizeof(pcb->Quantum);
+    // Asignar memoria para el Estado
+    pcb->State = malloc(strlen(buffer + offset) + 1);
+    if (pcb->State == NULL) {
+        log_error(logger, "Error al asignar memoria para el Estado: %s", strerror(errno));
+        return;
+    }
+    memcpy(pcb->State, buffer + offset, strlen(buffer + offset) + 1); // Copiar el Estado
+    offset += strlen(buffer + offset) + 1;
+    memcpy(&pcb->CPU_REGISTERS, buffer + offset, sizeof(pcb->CPU_REGISTERS)); // Copiar los registros de la CPU
+}
+
+// Create a packet
+t_packet* create_packet(OP_CODES op_code, size_t payload_size, void* data, serializer serializer_func) {
+    // Asignar memoria para el paquete
+    t_packet* packet = malloc(sizeof(t_packet));
+    if (packet == NULL) {
+        log_error(logger, "Error al asignar memoria para el paquete: %s", strerror(errno));
+        return NULL;
+    }
+
+    // Asignar memoria para el payload
+    packet->payload = malloc(payload_size);
+    if (packet->payload == NULL) {
+        log_error(logger, "Error al asignar memoria para el payload: %s", strerror(errno));
+        free(packet);
+        return NULL;
+    }
+    // Serializar data
+    serializer_func(data, &packet->payload, &payload_size);
+
+    // Asignar los valores del paquete
+    packet->op_code = op_code;
+    packet->payload_size = payload_size;
+
+    return packet;
+}
+
+// Destroy a packet
+bool destroy_packet(t_packet* packet) {
+    // Liberar la memoria del payload
+    free(packet->payload);
+    // Liberar la memoria del paquete
+    free(packet);
     return true;
 }
 
-bool recv_opcode(int fd, OP_CODES* opcode) {
-    // Recibir el opcode
-    /*ssize_t bytes_received = recv(fd, opcode, sizeof(OP_CODES), 0);
+bool send_packet(int fd, t_packet* packet) {
+    // Serializar el paquete
+    char* buffer;
+    size_t size;
+    serialize_packet(packet, &buffer, &size);
+
+    // Enviar el tamaño del paquete
+    if (send(fd, &size, sizeof(size_t), 0) < 0) {
+        log_error(logger, "Error al enviar el paquete: %s", strerror(errno));
+        return false;
+    }
+
+    // Enviar el paquete
+    if (send(fd, buffer, size, 0) < 0) {
+        log_error(logger, "Error al enviar el paquete: %s", strerror(errno));
+        return false;
+    }
+
+    // Liberar la memoria del buffer
+    free(buffer);
+
+    // Los datos se enviaron correctamente
+    return true;
+}
+
+bool recv_packet(int fd, t_packet* packet) {
+    // Recibir el tamaño del paquete
+    size_t size;
+    if (recv(fd, &size, sizeof(size_t), MSG_WAITALL) < 0) {
+        log_error(logger, "Error al recibir el paquete: %s", strerror(errno));
+        return false;
+    }
+
+    // Asignar memoria para el buffer
+    char* buffer = malloc(size);
+    if (buffer == NULL) {
+        log_error(logger, "Error al asignar memoria para el buffer: %s", strerror(errno));
+        return false;
+    }
+
+    // Recibir el paquete
+    if (recv(fd, buffer, size, MSG_WAITALL) < 0) {
+        log_error(logger, "Error al recibir el paquete: %s", strerror(errno));
+        free(buffer);
+        return false;
+    }
+
+    // Deserializar el paquete
+    deserialize_packet(buffer, size, packet);
+
+    // Liberar la memoria del buffer
+    free(buffer);
+
+    // Los datos se recibieron correctamente
+    return true;
+}
+
+bool recv_data(int fd, void* data, size_t size) {
+    // Recibir los datos
+    ssize_t bytes_received = recv(fd, data, size, MSG_WAITALL);
     if (bytes_received < 0) {
-        log_error(logger, "Error al recibir el opcode: %s", strerror(errno));
+        log_error(logger, "Error al recibir los datos: %s", strerror(errno));
         return false;
     }
 
     // Verificar si se recibió el tamaño correcto
-    if ((size_t)bytes_received != sizeof(OP_CODES)) {
-        log_error(logger, "Error al recibir el opcode: tamaño incorrecto");
+    if ((size_t)bytes_received != size) {
+        log_error(logger, "Error al recibir los datos: tamaño incorrecto");
         return false;
-    }*/
-
-    // El opcode se recibió correctamente
-    if(recv(fd, opcode, sizeof(OP_CODES), 0)) {
-        return true;
     }
-    return false;
+
+    // Los datos se recibieron correctamente
+    return true;
 }
 
-void* serializer(void* tad, const size_t *size) {
+void* serializer(void* tad, const size_t size) {
     // Asigna memoria para el flujo de bytes
-    void* stream = malloc(*size);
+    void* stream = malloc(size);
 
     // Copia la estructura al flujo de bytes
-    memcpy(stream, tad, *size);
+    memcpy(stream, tad, size);
 
     return stream;
 }
 
-void* deserializer(void* stream, const size_t *size) {
-    // Asigna memoria para la estructura
-    void* tad = malloc(*size);
-
-    // Copia el flujo de bytes a la estructura
-    memcpy(tad, stream, *size);
-
-    return tad;
-}
-
-bool send_tad(int fd, void* tad, const size_t *size) {
-    // Serializa la estructura en un flujo de bytes
-    void* stream = serializer(tad, size);
-
+bool send_tad(int fd, void* tad, size_t size) {
     // Envía la longitud de los datos del TAD como prefijo
-    if (send(fd, size, sizeof(size_t), 0) < 0) {
-        // Si el envío no se realiza correctamente, libera la memoria y devuelve false
-        free(stream);
-        log_error(logger, "Error al enviar la longitud de los datos del TAD: %s", strerror(errno));
-        return false;
-    }
+    send_data(fd, &size, sizeof(size_t));
 
     // Envía el flujo de bytes a través del socket
-    if (send(fd, stream, *size, 0) != *size) {
-        // Si el envío no se realiza correctamente, libera la memoria y devuelve false
-        free(stream);
-        return false;
-    }
-
-    // Libera la memoria asignada para el flujo de bytes
-    free(stream);
+    send_data(fd, tad, size);
 
     // Devuelve true si los datos se enviaron correctamente
     return true;
 }
 
 bool recv_tad(int fd, void** tad) {
-
     // Recibir la longitud de los datos del TAD como prefijo
     size_t tad_size;
-    if (recv(fd, &tad_size, sizeof(size_t), 0) < 0) {
-        log_error(logger, "Error al recibir la longitud de los datos del TAD: %s", strerror(errno));
-        return false;
-    }
+    recv_data(fd, &tad_size, sizeof(size_t));
 
     // Asignar memoria para los datos del TAD
     *tad = malloc(tad_size);
@@ -104,176 +224,8 @@ bool recv_tad(int fd, void** tad) {
     }
 
     // Recibir los datos reales del TAD
-    if (recv(fd, *tad, tad_size, 0) < 0) {
-        log_error(logger, "Error al recibir los datos del TAD: %s", strerror(errno));
-        return false;
-    }
+    recv_data(fd, *tad, tad_size);
 
     // Los datos se recibieron correctamente
-    return true;
-}
-
-// Test
-/**
- * @brief Serializa los datos de prueba en un flujo de bytes.
- *
- * Esta función toma una cadena y un byte, calcula el tamaño de los datos serializados,
- * asigna la memoria necesaria y luego copia los datos en la memoria asignada.
- * El tamaño de los datos serializados se almacena en el parámetro size.
- *
- * @param size Un puntero a un size_t donde se almacenará el tamaño de los datos serializados.
- * @param cadena La cadena a ser serializada.
- * @param cant El byte a ser serializado.
- * @return Un puntero a los datos serializados.
- */
-static void* serializar_test(size_t* size, char* cadena, uint8_t cant) {
-    // Calcula el tamaño de la cadena más el caracter nulo al final
-    size_t size_cadena = strlen(cadena) + 1;
-
-    // Calcula el tamaño total de los datos serializados
-    *size =
-          sizeof(OP_CODES)   // tamaño del código de operación
-        + sizeof(size_t)    // tamaño del total
-        + sizeof(size_t)    // tamaño de la cadena
-        + size_cadena       // cadena
-        + sizeof(uint8_t);  // cantidad
-
-    // Calcula el tamaño de la carga útil (payload)
-    size_t size_payload = *size - sizeof(OP_CODES) - sizeof(size_t);
-
-    // Asigna memoria para el flujo de datos
-    void* stream = malloc(*size);
-
-    // Define el código de operación
-    OP_CODES cop = TEST;
-
-    // Copia el código de operación al flujo de datos
-    memcpy(stream, &cop, sizeof(OP_CODES));
-
-    // Copia el tamaño de la carga útil al flujo de datos
-    memcpy(stream+sizeof(OP_CODES), &size_payload, sizeof(size_t));
-
-    // Copia el tamaño de la cadena al flujo de datos
-    memcpy(stream+sizeof(OP_CODES)+sizeof(size_t), &size_cadena, sizeof(size_t));
-
-    // Copia la cadena al flujo de datos
-    memcpy(stream+sizeof(OP_CODES)+sizeof(size_t)*2, cadena, size_cadena);
-
-    // Copia la cantidad al flujo de datos
-    memcpy(stream+sizeof(OP_CODES)+sizeof(size_t)*2+size_cadena, &cant, sizeof(uint8_t));
-
-    // Devuelve el flujo de datos
-    return stream;
-}
-
-/**
- * @brief Deserializa los datos de prueba desde un flujo de bytes.
- *
- * Esta función toma un flujo de bytes y extrae una cadena y un byte de él.
- * La cadena y el byte extraídos se almacenan en los parámetros cadena y cant, respectivamente.
- *
- * @param stream Un puntero al flujo de bytes a deserializer.
- * @param cadena Un puntero a un puntero de char donde se almacenará la cadena deserializada.
- * @param cant Un puntero a un uint8_t donde se almacenará el byte deserializado.
- */
-static void deserializar_test(void* stream, char** cadena, uint8_t* cant) {
-    // Extrae el tamaño de la cadena del flujo de bytes
-    size_t size_cadena;
-    memcpy(&size_cadena, stream, sizeof(size_t));
-
-    // Asigna memoria para la cadena y la extrae del flujo de bytes
-    char* r_cadena = malloc(size_cadena);
-    memcpy(r_cadena, stream+sizeof(size_t), size_cadena);
-    *cadena = r_cadena;
-
-    // Extrae el byte del flujo de bytes
-    memcpy(cant, stream+sizeof(size_t)+size_cadena, sizeof(uint8_t));
-}
-
-/**
- * @brief Envía datos de prueba a través de un socket.
- *
- * Esta función serializa una cadena y un byte en un flujo de bytes y luego lo envía a través de un socket.
- * Si el envío no se realiza correctamente, la función libera la memoria asignada para el flujo de bytes y devuelve false.
- *
- * @param fd El descriptor de archivo del socket a través del cual se enviarán los datos.
- * @param cadena La cadena a ser enviada.
- * @param cant El byte a ser enviado.
- * @return true si los datos se enviaron correctamente, false en caso contrario.
- */
-bool send_test(int fd, char* cadena, uint8_t cant) {
-    // Serializa los datos de prueba en un flujo de bytes
-    size_t size;
-    void* stream = serializar_test(&size, cadena, cant);
-
-    // Envía el flujo de bytes a través del socket
-    if (send(fd, stream, size, 0) != size) {
-        // Si el envío no se realiza correctamente, libera la memoria y devuelve false
-        free(stream);
-        return false;
-    }
-
-    // Libera la memoria asignada para el flujo de bytes
-    free(stream);
-
-    // Devuelve true si los datos se enviaron correctamente
-    return true;
-}
-
-/**
- * @brief Recibe datos de prueba a través de un socket.
- *
- * Esta función recibe un flujo de bytes a través de un socket y luego deserializa una cadena y un byte de él.
- * Si la recepción no se realiza correctamente, la función libera la memoria asignada para el flujo de bytes y devuelve false.
- *
- * @param fd El descriptor de archivo del socket a través del cual se recibirán los datos.
- * @param cadena Un puntero a un puntero de char donde se almacenará la cadena recibida.
- * @param cant Un puntero a un uint8_t donde se almacenará el byte recibido.
- * @return true si los datos se recibieron correctamente, false en caso contrario.
- */
-bool recv_test(int fd, char** cadena, uint8_t* cant) {
-    // Recibe el tamaño de la carga útil
-    size_t size_payload;
-    if (recv(fd, &size_payload, sizeof(size_t), 0) != sizeof(size_t))
-        return false;
-
-    // Asigna memoria para el flujo de bytes
-    void* stream = malloc(size_payload);
-
-    // Recibe el flujo de bytes a través del socket
-    if (recv(fd, stream, size_payload, 0) != size_payload) {
-        // Si la recepción no se realiza correctamente, libera la memoria y devuelve false
-        free(stream);
-        return false;
-    }
-
-    // Deserializa los datos de prueba desde el flujo de bytes
-    deserializar_test(stream, cadena, cant);
-
-    // Libera la memoria asignada para el flujo de bytes
-    free(stream);
-
-    // Devuelve true si los datos se recibieron correctamente
-    return true;
-}
-
-/**
- * @brief Envía un código de depuración a través de un socket.
- *
- * Esta función envía un código de depuración a través de un socket.
- * Si el envío no se realiza correctamente, la función devuelve false.
- *
- * @param fd El descriptor de archivo del socket a través del cual se enviará el código de depuración.
- * @return true si el código de depuración se envió correctamente, false en caso contrario.
- */
-bool send_debug(int fd) {
-    // Define el código de depuración
-    OP_CODES cop = DEBUG_CODE;
-
-    // Envía el código de depuración a través del socket
-    if (send(fd, &cop, sizeof(OP_CODES), 0) != sizeof(OP_CODES))
-        return false;
-
-    // Devuelve true si el código de depuración se envió correctamente
     return true;
 }
