@@ -39,12 +39,14 @@ void fin_conexion(){
 }
 
 // Escuchar al servidor conectado
-void cliente_escuchar(int* client_socket) {/*
+void cliente_escuchar(int* client_socket) {
+
     // debo usar procesar_conexion y correrlo.
     pthread_t hilo;
-    t_procesar_conexion_args* args = malloc(sizeof(t_procesar_conexion_args));
-    args->fd = *client_socket;
-    args->server_name = "test";
-    pthread_create(&hilo, NULL, (void*) procesar_conexion, (void*) args);
-    pthread_detach(hilo);*/
+    //t_procesar_conexion_args* args = malloc(sizeof(t_procesar_conexion_args));
+    //args->fd = *client_socket;
+    //args->server_name = "test";
+    //pthread_create(&hilo, NULL, (void*) procesar_conexion, (void*) args);
+    //pthread_detach(hilo);
+
 }
