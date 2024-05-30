@@ -16,6 +16,8 @@ t_log *logger;
 entradasalida_config_t * entradasalida_config = NULL;
 // Declaración de la estructura socketsT que almacenará los sockets utilizados en el programa
 socketsT* sockets;
+// Declaración de la variable interface_name que almacenará el nombre de la interfaz.
+char* interface_name;
 
 // Función principal del programa
 int main(int argc, char* argv[]) {
@@ -38,6 +40,9 @@ int main(int argc, char* argv[]) {
 
     // Carga de los datos de configuración desde el archivo especificado
     entradasalidaConfigLoad(argv[1]);
+
+    interface_name = entradasalida_config->interface_type;
+
     // Inicio de las conexiones utilizando los datos de configuración cargados
     iniciarConexiones();
 

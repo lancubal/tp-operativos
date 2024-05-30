@@ -10,6 +10,8 @@
 #include <commons/log.h>
 
 typedef struct {
+    char* interface_type;
+    int tiempo_unidad_trabajo;
     char* ipKernel;
     char* puertoKernel;
     char* ipMemoria;

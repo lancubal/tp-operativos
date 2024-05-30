@@ -19,6 +19,10 @@ void entradasalidaConfigLoad(char* path) {
     // Creamos una nueva estructura para almacenar la configuración de Entrada/Salida
     entradasalida_config = malloc(sizeof(entradasalida_config_t));
 
+    // Cargamos el tipo de interfaz
+    entradasalida_config->interface_type = config_get_string_value(config, "INTERFACE");
+    // Cargamos el tiempo de unidad de trabajo
+    entradasalida_config->tiempo_unidad_trabajo = config_get_int_value(config, "TIEMPO_UNIDAD_TRABAJO");
     // Cargamos la dirección IP del Kernel
     entradasalida_config->ipKernel = config_get_string_value(config, "IP_KERNEL");
     // Cargamos el puerto del Kernel
