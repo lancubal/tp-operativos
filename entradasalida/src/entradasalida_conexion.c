@@ -38,15 +38,116 @@ void fin_conexion(){
     log_destroy(logger);
 }
 
+void procesar_conexion(void* void_args) {
+    // Convertimos los argumentos a su tipo correcto
+    t_procesar_conexion_args* args = (t_procesar_conexion_args*) void_args;
+    int cliente_socket = args->fd;
+    char* server_name = args->server_name;
+    free(args);
+
+    // Entramos en un bucle donde recibimos y procesamos los mensajes de los clientes
+    while (cliente_socket != -1) {
+        // Recibimos el código de operación del mensaje
+        t_packet* packet = malloc(sizeof(t_packet));
+        if(recv_packet(cliente_socket, packet)) {
+            log_info(logger, "Recibido mensaje con código de operación: %d\n", packet->op_code);
+        }
+        switch (packet->op_code){
+            case IO_GEN_SLEEP: {
+                if (interface->type != GENERIC) {
+                    log_warning(logger, "No se puede realizar la operación IO_GEN_SLEEP en la interfaz %s", interface->name);
+                    return;
+                }
+                int sleep_time;
+                memcpy(&sleep_time, packet->payload, packet->payload_size);
+                sleep(sleep_time);
+
+                // Le avisamos al kernel que termino
+                send_packet(cliente_socket, create_packet(IO_END, sizeof(IO_END), NULL, NULL));
+                break;
+            }
+            case IO_STDIN_READ: {
+                if (interface->type != STDIN) {
+                    log_warning(logger, "No se puede realizar la operación IO_STDIN_READ en la interfaz %s", interface->name);
+                    return;
+                }
+
+                // Le avisamos al kernel que termino
+                send_packet(cliente_socket, create_packet(IO_END, sizeof(IO_END), NULL, NULL));
+                break;
+            }
+            case IO_STDOUT_WRITE: {
+                if (interface->type != STDOUT) {
+                    log_warning(logger, "No se puede realizar la operación IO_STDOUT_WRITE en la interfaz %s", interface->name);
+                    return;
+                }
+
+                // Le avisamos al kernel que termino
+                send_packet(cliente_socket, create_packet(IO_END, sizeof(IO_END), NULL, NULL));
+                break;
+            }
+            case IO_FS_CREATE: {
+                if (interface->type != DIALFS) {
+                    log_warning(logger, "No se puede realizar la operación IO_FS_CREATE en la interfaz %s", interface->name);
+                    return;
+                }
+
+                // Le avisamos al kernel que termino
+                send_packet(cliente_socket, create_packet(IO_END, sizeof(IO_END), NULL, NULL));
+                break;
+            }
+            case IO_FS_DELETE: {
+                if (interface->type != DIALFS) {
+                    log_warning(logger, "No se puede realizar la operación IO_FS_DELETE en la interfaz %s", interface->name);
+                    return;
+                }
+
+                // Le avisamos al kernel que termino
+                send_packet(cliente_socket, create_packet(IO_END, sizeof(IO_END), NULL, NULL));
+                break;
+            }
+            case IO_FS_TRUNCATE: {
+                if (interface->type != DIALFS) {
+                    log_warning(logger, "No se puede realizar la operación IO_FS_TRUNCATE en la interfaz %s", interface->name);
+                    return;
+                }
+
+                // Le avisamos al kernel que termino
+                send_packet(cliente_socket, create_packet(IO_END, sizeof(IO_END), NULL, NULL));
+                break;
+            }
+            case IO_FS_WRITE: {
+                if (interface->type != DIALFS) {
+                    log_warning(logger, "No se puede realizar la operación IO_FS_WRITE en la interfaz %s", interface->name);
+                    return;
+                }
+
+                // Le avisamos al kernel que termino
+                send_packet(cliente_socket, create_packet(IO_END, sizeof(IO_END), NULL, NULL));
+                break;
+            }
+            case IO_FS_READ: {
+                if (interface->type != DIALFS) {
+                    log_warning(logger, "No se puede realizar la operación IO_FS_READ en la interfaz %s", interface->name);
+                    return;
+                }
+
+                // Le avisamos al kernel que termino
+                send_packet(cliente_socket, create_packet(IO_END, sizeof(IO_END), NULL, NULL));
+                break;
+            }
+        }
+    }
+}
+
 // Escuchar al servidor conectado
 void cliente_escuchar(int* client_socket) {
 
     // debo usar procesar_conexion y correrlo.
     pthread_t hilo;
-    //t_procesar_conexion_args* args = malloc(sizeof(t_procesar_conexion_args));
-    //args->fd = *client_socket;
-    //args->server_name = "test";
-    //pthread_create(&hilo, NULL, (void*) procesar_conexion, (void*) args);
-    //pthread_detach(hilo);
-
+    t_procesar_conexion_args* args = malloc(sizeof(t_procesar_conexion_args));
+    args->fd = *client_socket;
+    args->server_name = "test";
+    pthread_create(&hilo, NULL, (void*) procesar_conexion, (void*) args);
+    pthread_detach(hilo);
 }

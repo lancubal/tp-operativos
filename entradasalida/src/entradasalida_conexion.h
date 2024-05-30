@@ -7,6 +7,13 @@
 
 #include <entradasalida_config.h>
 #include <sockets/client.h>
+#include <sockets/protocol.h>
+#include "entradasalida_interfaces.h"
+
+typedef struct {
+    int fd;
+    char* server_name;
+}t_procesar_conexion_args;
 
 void iniciarConexiones();
 void fin_conexion();

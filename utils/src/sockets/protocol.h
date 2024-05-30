@@ -15,11 +15,24 @@
 
 // Codigos de CPU comienzan en 1XX, codigos de memoria en 2XX, codigos de kernel en 3XX, codigos de io en 4XX
 typedef enum {
+    // CPU
     FETCH = 100,
+    // MEMORIA
     NEW_PROCESS = 211,
     END_PROCESS = 212,
+    // KERNEL
     PCB = 310,
-    ERROR_OP = -1 
+    IO_END = 340,
+    ERROR_OP = -1,
+    // I/O
+    IO_GEN_SLEEP = 400,
+    IO_STDIN_READ = 401,
+    IO_STDOUT_WRITE = 402,
+    IO_FS_CREATE = 403,
+    IO_FS_DELETE = 404,
+    IO_FS_TRUNCATE = 405,
+    IO_FS_WRITE = 406,
+    IO_FS_READ = 407,
 } OP_CODES;
 
 typedef struct {

@@ -5,7 +5,7 @@
 #include "entradasalida_interfaces.h"
 
 void start_interface() {
-    t_interface* interface = malloc(sizeof(t_interface));
+    interface = malloc(sizeof(t_interface));
     // Inicializamos la interfaz
     if (strcmp(entradasalida_config->interface_type, "STDIN") == 0) {
         // Inicializamos la interfaz STDIN
@@ -14,7 +14,7 @@ void start_interface() {
         log_info(logger, "Inicializando interfaz %s", interface->name);
     } else if (strcmp(entradasalida_config->interface_type, "STDOUT") == 0) {
         // Inicializamos la interfaz STDOUT
-        interface->type = STRDOUT;
+        interface->type = STDOUT;
         interface->name = "STDOUT";
         log_info(logger, "Inicializando interfaz %s", interface->name);
     } else if (strcmp(entradasalida_config->interface_type, "DIALFS") == 0) {
@@ -28,6 +28,9 @@ void start_interface() {
         interface->name = "GENERIC";
         log_info(logger, "Inicializando interfaz %s", interface->name);
     }
-    // Liberamos la memoria utilizada por la interfaz
-    free(interface);
+}
+
+void use_interface() {
+    // Usamos la interfaz
+    log_info(logger, "Ejecutando interfaz %s", interface->name);
 }
