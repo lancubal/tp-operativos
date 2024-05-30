@@ -4,6 +4,7 @@
 #include <memoria_conexion.h>
 #include "sockets/networking.h"
 #include <signal.h>
+#include <memoria_management.h>
 
 
 // Definición de la función sighandler que se ejecutará cuando se reciba la señal SIGINT (CTRL + C)
@@ -16,6 +17,11 @@ t_log *logger = NULL;
 memoria_config_t* memoria_config = NULL;
 // Declaración de la estructura socketsT que almacenará los sockets utilizados en el programa
 socketsT* sockets = NULL;
+// Memoria contigua
+void* memory;
+// Tabla de páginas del proceso actual (simulación simple con una única tabla)
+t_page_table page_table;
+
 
 // Instrucciones de testeo
 char* instrucciones[] = {
@@ -66,6 +72,9 @@ int main(int argc, char* argv[]) {
 
     // Inicio de las conexiones utilizando los datos de configuración cargados
     iniciarConexiones();
+
+    // Inicialización de la memoria
+    init_memory();
 
     // Escucha de conexiones entrantes hasta que no se establezcan más conexiones
     while(server_escuchar("Servidor Memoria"));

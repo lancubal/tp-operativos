@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
     T_CPU_REGISTERS* registers;
     for (int i = 1; i <= 5; i++) {
         registers = init_CPU_REGISTERS(i, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-        queue_push(ready_queue, init_PCB(i, 99, "NEW", registers));
+        queue_push(ready_queue, init_PCB(i, 99, "NEW", registers, 100));
     }
     // Creación del hilo para el planificador
     pthread_t short_term_scheduler_thread;

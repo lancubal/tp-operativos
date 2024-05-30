@@ -16,6 +16,8 @@
 // Codigos de CPU comienzan en 1XX, codigos de memoria en 2XX, codigos de kernel en 3XX, codigos de io en 4XX
 typedef enum {
     FETCH = 100,
+    NEW_PROCESS = 211,
+    END_PROCESS = 212,
     PCB = 310,
     ERROR_OP = -1 
 } OP_CODES;

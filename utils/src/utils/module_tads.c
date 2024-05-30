@@ -6,12 +6,13 @@
 #include "module_tads.h"
 
 // Función para inicializar un t_PCB
-t_PCB* init_PCB(int PID, int Quantum, char* State, T_CPU_REGISTERS* CPU_REGISTERS) {
+t_PCB* init_PCB(int PID, int Quantum, char* State, T_CPU_REGISTERS* CPU_REGISTERS, uint32_t memory_size) {
     t_PCB* pcb = malloc(sizeof(t_PCB));
     pcb->PID = PID;
     pcb->Quantum = Quantum;
     pcb->State = State;
     load_context(&pcb->CPU_REGISTERS, CPU_REGISTERS);
+    pcb->memory_size = memory_size;
     pcb->size = sizeof(t_PCB) + CPU_REGISTERS->size;
     return pcb;
 }

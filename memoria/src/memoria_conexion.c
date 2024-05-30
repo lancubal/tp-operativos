@@ -61,6 +61,19 @@ void procesar_conexion(void* void_args) {
                 send_packet(cliente_socket, create_packet(FETCH, strlen(instruccion), instruccion, NULL));
                 break;
             }
+            case NEW_PROCESS: {
+                // Recibir un PCB y le asigno una pagina si hay espacio.
+                t_PCB* pcb = malloc(sizeof(t_PCB));
+                deserialize_pcb(packet->payload, packet->payload_size, pcb);
+                log_info(logger, "Recibido PCB con PID: %d", pcb->PID);
+                assign_page_to_process(pcb);
+                send_packet(cliente_socket, create_packet(PCB, pcb->size, pcb, serialize_pcb));
+                break;
+            }
+            case END_PROCESS: {
+                // Recibir un PCB y lo finaliza
+
+            }
             // Errores
             case ERROR_OP:
                 log_error(logger, "Cliente desconectado de %s...", server_name);

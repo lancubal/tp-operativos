@@ -13,6 +13,9 @@
 #include <memoria_config.h>
 #include "sockets/protocol.h"
 #include "sockets/client.h"
+#include <semaphore.h>
+#include "utils/module_tads.h"
+#include "memoria_management.h"
 
 extern char* instrucciones[];
 
