@@ -18,6 +18,9 @@ socketsT* sockets;
 T_CPU_REGISTERS CPU_Registers = {0, 0, 0, 0, 0, 0, 0, 0};
 // Instruccion fetcheada
 char* instruccion = NULL;
+// Instruccion decodificada
+instruction_decoded_t* decoded_instruction;
+
 // Semaforos
 sem_t sem_pcb;
 sem_t sem_cycle;
