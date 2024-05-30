@@ -22,7 +22,7 @@ typedef enum {
 
 typedef struct {
     instruction_type type;
-    char operands[3][32]; // Tres operandos como máximo, tamaño máximo de cada operando: 32 caracteres
+    char operands[5][32]; // 5 operandos como máximo, tamaño máximo de cada operando: 32 caracteres
 } instruction_decoded_t;
 
 extern T_CPU_REGISTERS CPU_Registers;
