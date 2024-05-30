@@ -1,10 +1,10 @@
 #include <utils/logger.h>
 #include <utils/config.h>
 #include "sockets/client.h"
-#include "sockets/protocol.h"
 #include <entradasalida_config.h>
 #include <entradasalida_conexion.h>
 #include <signal.h>
+#include <entradasalida_interfaces.h>
 
 // Definición de la función sighandler que se ejecutará cuando se reciba la señal SIGINT (CTRL + C)
 void sighandler(int s);
@@ -16,8 +16,6 @@ t_log *logger;
 entradasalida_config_t * entradasalida_config = NULL;
 // Declaración de la estructura socketsT que almacenará los sockets utilizados en el programa
 socketsT* sockets;
-// Declaración de la variable interface_name que almacenará el nombre de la interfaz.
-char* interface_name;
 
 // Función principal del programa
 int main(int argc, char* argv[]) {
@@ -41,22 +39,11 @@ int main(int argc, char* argv[]) {
     // Carga de los datos de configuración desde el archivo especificado
     entradasalidaConfigLoad(argv[1]);
 
-    interface_name = entradasalida_config->interface_type;
-
     // Inicio de las conexiones utilizando los datos de configuración cargados
     iniciarConexiones();
 
-    // Prueba de envío de mensajes
-    int a;
-    /*while (1)
-    {
-        // Bloqueo del programa para esperar la entrada del usuario
-        scanf("%d", &a);
-        // Envío de un mensaje de prueba al socket de memoria
-        send_test(sockets.memoriaSocket, "Perro", 10);
-        // Envío de un mensaje de prueba al socket del kernel
-        send_test(sockets.kernelSocket, "Gato", 1);
-    }*/
+    // Iniciar interfaz
+    start_interface();
 
     // Finalización de todas las conexiones y liberación de los recursos utilizados
     fin_conexion(logger,&sockets);
