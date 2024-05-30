@@ -32,7 +32,7 @@ typedef enum {
     IO_FS_DELETE = 404,
     IO_FS_TRUNCATE = 405,
     IO_FS_WRITE = 406,
-    IO_FS_READ = 407,
+    IO_FS_READ = 407
 } OP_CODES;
 
 typedef struct {
