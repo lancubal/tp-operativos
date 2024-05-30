@@ -23,8 +23,9 @@ void free_memory();
 
 // Funciones para acceder a la memoria
 uint32_t translate_address(uint32_t logical_address);
-void write_memory(uint32_t logical_address, uint8_t value);
-uint8_t read_memory(uint32_t logical_address);
+void write_memory_from_physical(uint32_t physical_address, uint8_t value);
+void write_memory_from_logical(uint32_t logical_address, uint8_t value);
+uint8_t read_memory_from_logical(uint32_t logical_address);
 void allocate_page(uint32_t page_number, uint32_t frame_number);
 // Funcion para asignarle una pagina a un proceso
 void assign_page_to_process(t_PCB* pcb);

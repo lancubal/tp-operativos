@@ -20,6 +20,8 @@ typedef enum {
     // MEMORIA
     NEW_PROCESS = 211,
     END_PROCESS = 212,
+    WRITE_FROM_PHYSICAL = 240,
+    READ_FROM_PHYSICAL = 241,
     // KERNEL
     PCB = 310,
     IO_END = 340,

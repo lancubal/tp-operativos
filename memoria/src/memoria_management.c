@@ -49,12 +49,16 @@ uint32_t translate_address(uint32_t logical_address) {
     return frame_number * PAGE_SIZE + offset;
 }
 
-void write_memory(uint32_t logical_address, uint8_t value) {
+void write_memory_from_physical(uint32_t physical_address, uint8_t value) {
+    *((uint8_t*)memory + physical_address) = value;
+}
+
+void write_memory_from_logical(uint32_t logical_address, uint8_t value) {
     uint32_t physical_address = translate_address(logical_address);
     *((uint8_t*)memory + physical_address) = value;
 }
 
-uint8_t read_memory(uint32_t logical_address) {
+uint8_t read_memory_from_logical(uint32_t logical_address) {
     uint32_t physical_address = translate_address(logical_address);
     return *((uint8_t*)memory + physical_address);
 }

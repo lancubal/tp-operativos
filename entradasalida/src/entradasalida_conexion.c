@@ -71,6 +71,15 @@ void procesar_conexion(void* void_args) {
                     log_warning(logger, "No se puede realizar la operación IO_STDIN_READ en la interfaz %s", interface->name);
                     return;
                 }
+                uint32_t physical_address;
+                memcpy(&physical_address, packet->payload, packet->payload_size);
+                char* text_from_console = readline(">");
+                send_packet(sockets->memoriaSocket, create_packet(WRITE_FROM_PHYSICAL, sizeof(WRITE_FROM_PHYSICAL), text_from_console, NULL));
+                recv_packet(sockets->memoriaSocket, packet);
+                if(packet->op_code != WRITE_FROM_PHYSICAL) {
+                    log_error(logger, "Error al escribir en memoria");
+                    return;
+                }
 
                 // Le avisamos al kernel que termino
                 send_packet(cliente_socket, create_packet(IO_END, sizeof(IO_END), NULL, NULL));
@@ -81,7 +90,16 @@ void procesar_conexion(void* void_args) {
                     log_warning(logger, "No se puede realizar la operación IO_STDOUT_WRITE en la interfaz %s", interface->name);
                     return;
                 }
-
+                uint32_t physical_address;
+                memcpy(&physical_address, packet->payload, packet->payload_size);
+                send_packet(sockets->memoriaSocket, create_packet(READ_FROM_PHYSICAL, sizeof(READ_FROM_PHYSICAL), &physical_address, NULL));
+                recv_packet(sockets->memoriaSocket, packet);
+                if(packet->op_code != READ_FROM_PHYSICAL) {
+                    log_error(logger, "Error al leer de memoria");
+                    return;
+                }
+                char* text_from_memory;
+                memcpy(text_from_memory, packet->payload, packet->payload_size);
                 // Le avisamos al kernel que termino
                 send_packet(cliente_socket, create_packet(IO_END, sizeof(IO_END), NULL, NULL));
                 break;
