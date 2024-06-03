@@ -24,6 +24,8 @@ typedef enum {
     READ_FROM_PHYSICAL = 241,
     // KERNEL
     PCB = 310,
+    WAIT = 311,
+    SIGNAL = 312,
     IO_END = 340,
     ERROR_OP = -1,
     // I/O

@@ -154,6 +154,26 @@ void procesar_conexion(void* void_args) {
                 send_packet(cliente_socket, create_packet(IO_END, sizeof(IO_END), NULL, NULL));
                 break;
             }
+            case FETCH:
+                break;
+            case NEW_PROCESS:
+                break;
+            case END_PROCESS:
+                break;
+            case WRITE_FROM_PHYSICAL:
+                break;
+            case READ_FROM_PHYSICAL:
+                break;
+            case PCB:
+                break;
+            case WAIT:
+                break;
+            case SIGNAL:
+                break;
+            case IO_END:
+                break;
+            case ERROR_OP:
+                break;
         }
     }
 }

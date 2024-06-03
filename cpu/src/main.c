@@ -14,17 +14,20 @@ t_log *logger;
 cpu_config_t *cpu_config = NULL;
 // Declaración de la estructura socketsT que almacenará los sockets utilizados en el programa
 socketsT* sockets;
-// Declaración de la estructura CPU_Registers que almacenará los registros de la CPU
-T_CPU_REGISTERS CPU_Registers = {0, 0, 0, 0, 0, 0, 0, 0};
+// PCB en ejecución
+t_PCB *pcb = NULL;
 // Instruccion fetcheada
 char* instruccion = NULL;
 // Instruccion decodificada
 instruction_decoded_t* decoded_instruction;
+// Interrupcion
+bool interrupcion = false;
 
 // Semaforos
 sem_t sem_pcb;
 sem_t sem_cycle;
 sem_t sem_instruccion;
+
 
 // Función principal del programa
 int main(int argc, char* argv[]) {
@@ -32,6 +35,14 @@ int main(int argc, char* argv[]) {
     signal(SIGINT, sighandler);
     signal(SIGPIPE, sighandler);
     signal(SIGSEGV, sighandler);
+
+    // Inicialización de los semaforos
+    sem_init(&sem_pcb, 0, 0);
+    sem_init(&sem_cycle, 0, 0);
+    sem_init(&sem_instruccion, 0, 0);
+
+    // Inicializar PCB
+    pcb = malloc(sizeof(t_PCB));
 
     // Inicialización del logger
     logger = loggerCreate();
@@ -68,13 +79,11 @@ int main(int argc, char* argv[]) {
     pthread_join(dispatch_thread,NULL);
     pthread_join(interrupt_thread,NULL);
     pthread_join(memoria_thread,NULL);
+
     pthread_join(cpu_ciclo_thread,NULL);
 
     // Finalización de todas las conexiones y liberación de los recursos utilizados
     fin_conexion(&sockets);
-    // Cierre de los hilos de escucha de conexiones
-    close(dispatch_thread);
-    close(interrupt_thread);
     return 0;
 }
 

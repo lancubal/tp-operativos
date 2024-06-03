@@ -11,7 +11,6 @@
 #include "utils/module_tads.h"
 
 
-
 // Memoria contigua
 extern void* memory;
 // Tabla de páginas del proceso actual (simulación simple con una única tabla)

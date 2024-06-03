@@ -6,112 +6,47 @@
 
 
 void set_register_value(const char* reg_name, uint32_t value) {
-    if (strcmp(reg_name, "PC") == 0) CPU_Registers.PC = value;
-    else if (strcmp(reg_name, "AX") == 0) CPU_Registers.AX = (uint8_t)value;
-    else if (strcmp(reg_name, "BX") == 0) CPU_Registers.BX = (uint8_t)value;
-    else if (strcmp(reg_name, "CX") == 0) CPU_Registers.CX = (uint8_t)value;
-    else if (strcmp(reg_name, "DX") == 0) CPU_Registers.DX = (uint8_t)value;
-    else if (strcmp(reg_name, "EAX") == 0) CPU_Registers.EAX = value;
-    else if (strcmp(reg_name, "EBX") == 0) CPU_Registers.EBX = value;
-    else if (strcmp(reg_name, "EDX") == 0) CPU_Registers.EDX = value;
-    else if (strcmp(reg_name, "ECX") == 0) CPU_Registers.ECX = value;
-    else if (strcmp(reg_name, "SI") == 0) CPU_Registers.SI = value;
-    else if (strcmp(reg_name, "DI") == 0) CPU_Registers.DI = value;
-    else if (strcmp(reg_name, "size") == 0) CPU_Registers.size = value;
+    if (strcmp(reg_name, "PC") == 0) pcb->CPU_REGISTERS.PC = value;
+    else if (strcmp(reg_name, "AX") == 0) pcb->CPU_REGISTERS.AX = (uint8_t)value;
+    else if (strcmp(reg_name, "BX") == 0) pcb->CPU_REGISTERS.BX = (uint8_t)value;
+    else if (strcmp(reg_name, "CX") == 0) pcb->CPU_REGISTERS.CX = (uint8_t)value;
+    else if (strcmp(reg_name, "DX") == 0) pcb->CPU_REGISTERS.DX = (uint8_t)value;
+    else if (strcmp(reg_name, "EAX") == 0) pcb->CPU_REGISTERS.EAX = value;
+    else if (strcmp(reg_name, "EBX") == 0) pcb->CPU_REGISTERS.EBX = value;
+    else if (strcmp(reg_name, "EDX") == 0) pcb->CPU_REGISTERS.EDX = value;
+    else if (strcmp(reg_name, "ECX") == 0) pcb->CPU_REGISTERS.ECX = value;
+    else if (strcmp(reg_name, "SI") == 0) pcb->CPU_REGISTERS.SI = value;
+    else if (strcmp(reg_name, "DI") == 0) pcb->CPU_REGISTERS.DI = value;
     else log_warning(logger, "Registro desconocido: %s", reg_name);
 }
 
 uint32_t get_register_value(const char* reg_name) {
-    if (strcmp(reg_name, "PC") == 0) return CPU_Registers.PC;
-    else if (strcmp(reg_name, "AX") == 0) return CPU_Registers.AX;
-    else if (strcmp(reg_name, "BX") == 0) return CPU_Registers.BX;
-    else if (strcmp(reg_name, "CX") == 0) return CPU_Registers.CX;
-    else if (strcmp(reg_name, "DX") == 0) return CPU_Registers.DX;
-    else if (strcmp(reg_name, "EAX") == 0) return CPU_Registers.EAX;
-    else if (strcmp(reg_name, "EBX") == 0) return CPU_Registers.EBX;
-    else if (strcmp(reg_name, "EDX") == 0) return CPU_Registers.EDX;
-    else if (strcmp(reg_name, "ECX") == 0) return CPU_Registers.ECX;
-    else if (strcmp(reg_name, "SI") == 0) return CPU_Registers.SI;
-    else if (strcmp(reg_name, "DI") == 0) return CPU_Registers.DI;
-    else if (strcmp(reg_name, "size") == 0) return CPU_Registers.size;
+    if (strcmp(reg_name, "PC") == 0) return pcb->CPU_REGISTERS.PC;
+    else if (strcmp(reg_name, "AX") == 0) return pcb->CPU_REGISTERS.AX;
+    else if (strcmp(reg_name, "BX") == 0) return pcb->CPU_REGISTERS.BX;
+    else if (strcmp(reg_name, "CX") == 0) return pcb->CPU_REGISTERS.CX;
+    else if (strcmp(reg_name, "DX") == 0) return pcb->CPU_REGISTERS.DX;
+    else if (strcmp(reg_name, "EAX") == 0) return pcb->CPU_REGISTERS.EAX;
+    else if (strcmp(reg_name, "EBX") == 0) return pcb->CPU_REGISTERS.EBX;
+    else if (strcmp(reg_name, "EDX") == 0) return pcb->CPU_REGISTERS.EDX;
+    else if (strcmp(reg_name, "ECX") == 0) return pcb->CPU_REGISTERS.ECX;
+    else if (strcmp(reg_name, "SI") == 0) return pcb->CPU_REGISTERS.SI;
+    else if (strcmp(reg_name, "DI") == 0) return pcb->CPU_REGISTERS.DI;
     else {
         log_warning(logger, "Registro desconocido: %s", reg_name);
         return 0;
     }
-}
-uint32_t read_memory(uint32_t address) {
-    // TODO: Implementación para leer de memoria
-}
-
-void write_memory(uint32_t address, uint32_t data) {
-    // TODO: Implementación para escribir en memoria
-}
-
-bool resize_memory(uint32_t new_size) {
-    // TODO: Implementación para redimensionar la memoria
-}
-
-void handle_out_of_memory() {
-    // TODO: Implementación para manejar el caso de memoria insuficiente
-}
-
-void copy_memory(uint32_t src, uint32_t dest, uint32_t size) {
-    // TODO: Implementación para copiar memoria
-}
-
-void request_resource(const char* resource) {
-    // TODO: Implementación para solicitar un recurso
-}
-
-void release_resource(const char* resource) {
-    // TODO: Implementación para liberar un recurso
-}
-
-void io_gen_sleep(uint32_t interface, uint32_t units) {
-    // TODO: Implementación para realizar una operación de sleep en I/O
-}
-
-void io_stdin_read(uint32_t interface, uint32_t address, uint32_t size) {
-    // TODO: Implementación para leer desde STDIN
-}
-
-void io_stdout_write(uint32_t interface, uint32_t address, uint32_t size) {
-    // TODO: Implementación para escribir en STDOUT
-}
-
-void io_fs_create(uint32_t interface, const char* filename) {
-    // TODO: Implementación para crear un archivo en el sistema de archivos
-}
-
-void io_fs_delete(uint32_t interface, const char* filename) {
-    // TODO: Implementación para eliminar un archivo en el sistema de archivos
-}
-
-void io_fs_truncate(uint32_t interface, const char* filename, uint32_t size) {
-    // TODO: Implementación para truncar un archivo en el sistema de archivos
-}
-
-void io_fs_write(uint32_t interface, const char* filename, uint32_t address, uint32_t size, uint32_t file_pointer) {
-    // TODO: Implementación para escribir en un archivo en el sistema de archivos
-}
-
-void io_fs_read(uint32_t interface, const char* filename, uint32_t address, uint32_t size, uint32_t file_pointer) {
-    // TODO: Implementación para leer de un archivo en el sistema de archivos
-}
-
-void handle_exit() {
-    // TODO: Implementación para manejar la finalización del proceso
 }
 
 
 void fetch() {
     log_warning(logger, "Fetching...");
     // Enviar el PC con el opcode FETCH
-    send_packet(sockets->memoriaSocket, create_packet(FETCH, sizeof(CPU_Registers.PC), &CPU_Registers.PC, NULL));
+    send_packet(sockets->memoriaSocket, create_packet(FETCH, sizeof(pcb->CPU_REGISTERS.PC), &pcb->CPU_REGISTERS.PC, NULL));
     // Semaforo para esperar la instruccion de memoria
     sem_wait(&sem_instruccion);
     log_warning(logger, "Instruccion recibida: %s", instruccion);
-    CPU_Registers.PC++;
+    pcb->CPU_REGISTERS.PC++;
 }
 /*Esta etapa consiste en interpretar qué instrucción es la que se va a ejecutar
  y si la misma requiere de una traducción de dirección lógica a dirección física. */
@@ -139,25 +74,25 @@ void decode() {
     } else if (strcmp(token, "COPY_STRING") == 0) {
         decoded_instruction->type = COPY_STRING;
     } else if (strcmp(token, "IO_GEN_SLEEP") == 0) {
-        decoded_instruction->type = (instruction_type) IO_GEN_SLEEP;
+        decoded_instruction->type = IO;
     } else if (strcmp(token, "IO_STDIN_READ") == 0) {
-        decoded_instruction->type = (instruction_type) IO_STDIN_READ;
+        decoded_instruction->type = IO;
     } else if (strcmp(token, "IO_STDOUT_WRITE") == 0) {
-        decoded_instruction->type = (instruction_type) IO_STDOUT_WRITE;
+        decoded_instruction->type = IO;
     } else if (strcmp(token, "IO_FS_CREATE") == 0) {
-        decoded_instruction->type = (instruction_type) IO_FS_CREATE;
+        decoded_instruction->type = IO;
     } else if (strcmp(token, "IO_FS_DELETE") == 0) {
-        decoded_instruction->type = (instruction_type) IO_FS_DELETE;
+        decoded_instruction->type = IO;
     } else if (strcmp(token, "IO_FS_TRUNCATE") == 0) {
-        decoded_instruction->type = (instruction_type) IO_FS_TRUNCATE;
+        decoded_instruction->type = IO;
     } else if (strcmp(token, "IO_FS_WRITE") == 0) {
-        decoded_instruction->type = (instruction_type) IO_FS_WRITE;
+        decoded_instruction->type = IO;
     } else if (strcmp(token, "IO_FS_READ") == 0) {
-        decoded_instruction->type = (instruction_type) IO_FS_READ;
+        decoded_instruction->type = IO;
     } else if (strcmp(token, "WAIT") == 0) {
-        decoded_instruction->type = WAIT;
+        decoded_instruction->type = I_WAIT;
     } else if (strcmp(token, "SIGNAL") == 0) {
-        decoded_instruction->type = SIGNAL;
+        decoded_instruction->type = I_SIGNAL;
     } else if (strcmp(token, "EXIT") == 0) {
         decoded_instruction->type = EXIT;
     } else {
@@ -200,21 +135,21 @@ void execute() {
             break;
         }
         case MOV_IN: {
-            // MOV_IN (Registro Datos, Registro Dirección)
+            // TODO: MOV_IN (Registro Datos, Registro Dirección)
             const char* reg_data = decoded_instruction->operands[0];
             const char* reg_dir = decoded_instruction->operands[1];
             uint32_t address = get_register_value(reg_dir);
-            uint32_t data = read_memory(address);
-            set_register_value(reg_data, data);
+            //uint32_t data = read_memory(address);
+            //set_register_value(reg_data, data);
             break;
         }
         case MOV_OUT: {
-            // MOV_OUT (Registro Dirección, Registro Datos)
+            // TODO: MOV_OUT (Registro Dirección, Registro Datos)
             const char* reg_dir = decoded_instruction->operands[0];
             const char* reg_data = decoded_instruction->operands[1];
             uint32_t address = get_register_value(reg_dir);
             uint32_t data = get_register_value(reg_data);
-            write_memory(address, data);
+            //write_memory(address, data);
             break;
         }
         case SUM: {
@@ -245,24 +180,24 @@ void execute() {
             }
             uint32_t reg_value = get_register_value(reg);
             if (reg_value != 0) {
-                CPU_Registers.PC = instruction_number;
+                pcb->CPU_REGISTERS.PC = instruction_number;
             }
             break;
         }
         case RESIZE: {
-            // RESIZE (Tamaño)
+            // TODO: RESIZE (Tamaño)
             uint32_t new_size = strtol(decoded_instruction->operands[0], &endptr, 10);
             if (*endptr != '\0') {
                 log_warning(logger, "Valor inválido para RESIZE: %s", decoded_instruction->operands[0]);
                 break;
             }
-            if (!resize_memory(new_size)) {
+            /*if (!resize_memory(new_size)) {
                 handle_out_of_memory();
-            }
+            }*/
             break;
         }
         case COPY_STRING: {
-            // COPY_STRING (Tamaño)
+            // TODO: COPY_STRING (Tamaño)
             uint32_t size = strtol(decoded_instruction->operands[0], &endptr, 10);
             if (*endptr != '\0') {
                 log_warning(logger, "Valor inválido para COPY_STRING: %s", decoded_instruction->operands[0]);
@@ -270,145 +205,59 @@ void execute() {
             }
             uint32_t src_address = get_register_value("SI");
             uint32_t dest_address = get_register_value("DI");
-            copy_memory(src_address, dest_address, size);
+            //copy_memory(src_address, dest_address, size);
             break;
         }
-        case WAIT: {
-            // WAIT (Recurso)
+        case I_WAIT: {
+            // TODO: WAIT (Recurso)
             const char* resource = decoded_instruction->operands[0];
-            request_resource(resource);
+            // TODO
+            //request_resource(resource);
             break;
         }
-        case SIGNAL: {
-            // SIGNAL (Recurso)
+        case I_SIGNAL: {
+            // TODO: SIGNAL (Recurso)
             const char* resource = decoded_instruction->operands[0];
-            release_resource(resource);
+            //release_resource(resource);
             break;
         }
-        case IO_GEN_SLEEP: {
-            // IO_GEN_SLEEP (Interfaz, Unidades de trabajo)
-            uint32_t interface = strtol(decoded_instruction->operands[0], &endptr, 10);
-            if (*endptr != '\0') {
-                log_warning(logger, "Valor inválido para IO_GEN_SLEEP: %s", decoded_instruction->operands[0]);
-                break;
+        case IO: {
+            // Desalojar proceso
+            // Mandar el opcode WAIT con la interface y el tiempo al kernel
+            strcpy(pcb->recurso[0], decoded_instruction->operands[0]);
+            for (int i = 1; i < 5; i++) {
+                if (decoded_instruction->operands[i] == NULL) break;
+                strcpy(pcb->recurso[i], decoded_instruction->operands[i]);
             }
-            uint32_t units = strtol(decoded_instruction->operands[1], &endptr, 10);
-            if (*endptr != '\0') {
-                log_warning(logger, "Valor inválido para IO_GEN_SLEEP: %s", decoded_instruction->operands[1]);
-                break;
-            }
-            io_gen_sleep(interface, units);
-            break;
-        }
-        case IO_STDIN_READ: {
-            // IO_STDIN_READ (Interfaz, Registro Dirección, Registro Tamaño)
-            uint32_t interface = strtol(decoded_instruction->operands[0], &endptr, 10);
-            if (*endptr != '\0') {
-                log_warning(logger, "Valor inválido para IO_STDIN_READ: %s", decoded_instruction->operands[0]);
-                break;
-            }
-            uint32_t address = get_register_value(decoded_instruction->operands[1]);
-            uint32_t size = get_register_value(decoded_instruction->operands[2]);
-            io_stdin_read(interface, address, size);
-            break;
-        }
-        case IO_STDOUT_WRITE: {
-            // IO_STDOUT_WRITE (Interfaz, Registro Dirección, Registro Tamaño)
-            uint32_t interface = strtol(decoded_instruction->operands[0], &endptr, 10);
-            if (*endptr != '\0') {
-                log_warning(logger, "Valor inválido para IO_STDOUT_WRITE: %s", decoded_instruction->operands[0]);
-                break;
-            }
-            uint32_t address = get_register_value(decoded_instruction->operands[1]);
-            uint32_t size = get_register_value(decoded_instruction->operands[2]);
-            io_stdout_write(interface, address, size);
-            break;
-        }
-        case IO_FS_CREATE: {
-            // IO_FS_CREATE (Interfaz, Nombre Archivo)
-            uint32_t interface = strtol(decoded_instruction->operands[0], &endptr, 10);
-            if (*endptr != '\0') {
-                log_warning(logger, "Valor inválido para IO_FS_CREATE: %s", decoded_instruction->operands[0]);
-                break;
-            }
-            const char* filename = decoded_instruction->operands[1];
-            io_fs_create(interface, filename);
-            break;
-        }
-        case IO_FS_DELETE: {
-            // IO_FS_DELETE (Interfaz, Nombre Archivo)
-            uint32_t interface = strtol(decoded_instruction->operands[0], &endptr, 10);
-            if (*endptr != '\0') {
-                log_warning(logger, "Valor inválido para IO_FS_DELETE: %s", decoded_instruction->operands[0]);
-                break;
-            }
-            const char* filename = decoded_instruction->operands[1];
-            io_fs_delete(interface, filename);
-            break;
-        }
-        case IO_FS_TRUNCATE: {
-            // IO_FS_TRUNCATE (Interfaz, Nombre Archivo, Registro Tamaño)
-            uint32_t interface = strtol(decoded_instruction->operands[0], &endptr, 10);
-            if (*endptr != '\0') {
-                log_warning(logger, "Valor inválido para IO_FS_TRUNCATE: %s", decoded_instruction->operands[0]);
-                break;
-            }
-            const char* filename = decoded_instruction->operands[1];
-            uint32_t size = get_register_value(decoded_instruction->operands[2]);
-            io_fs_truncate(interface, filename, size);
-            break;
-        }
-        case IO_FS_WRITE: {
-            // IO_FS_WRITE (Interfaz, Nombre Archivo, Registro Dirección, Registro Tamaño, Registro Puntero Archivo)
-            uint32_t interface = strtol(decoded_instruction->operands[0], &endptr, 10);
-            if (*endptr != '\0') {
-                log_warning(logger, "Valor inválido para IO_FS_WRITE: %s", decoded_instruction->operands[0]);
-                break;
-            }
-            const char* filename = decoded_instruction->operands[1];
-            uint32_t address = get_register_value(decoded_instruction->operands[2]);
-            uint32_t size = get_register_value(decoded_instruction->operands[3]);
-            uint32_t file_pointer = get_register_value(decoded_instruction->operands[4]);
-            io_fs_write(interface, filename, address, size, file_pointer);
-            break;
-        }
-        case IO_FS_READ: {
-            // IO_FS_READ (Interfaz, Nombre Archivo, Registro Dirección, Registro Tamaño, Registro Puntero Archivo)
-            uint32_t interface = strtol(decoded_instruction->operands[0], &endptr, 10);
-            if (*endptr != '\0') {
-                log_warning(logger, "Valor inválido para IO_FS_READ: %s", decoded_instruction->operands[0]);
-                break;
-            }
-            const char* filename = decoded_instruction->operands[1];
-            uint32_t address = get_register_value(decoded_instruction->operands[2]);
-            uint32_t size = get_register_value(decoded_instruction->operands[3]);
-            uint32_t file_pointer = get_register_value(decoded_instruction->operands[4]);
-            io_fs_read(interface, filename, address, size, file_pointer);
+
+            send_packet(sockets->interruptSocket, create_packet(WAIT, sizeof(WAIT), pcb, serialize_pcb));
+            // terminar
+            interrupcion = true;
             break;
         }
         case EXIT: {
             // EXIT
-            handle_exit();
+            interrupcion = true;
             break;
         }
         default:
-            log_warning(logger, "Instrucción no soportada: %d", decoded_instruction->type);
+            // No hay más instrucciones
+            log_warning(logger, "El proceso ejecuto todas las instrucciones");
+            interrupcion = true;
             break;
     }
 
 }
 
 void cpu_ciclo() {
-    // TODO: Implementar el ciclo de la CPU
     while(true) {
         sem_wait(&sem_pcb);
-        int i = 0;
         while (true) {
             fetch();
             decode();
             execute();
-            i++;
-            if (i > 3) {
+            if (interrupcion) {
+                interrupcion = false;
                 sem_post(&sem_cycle);
                 break;
             }

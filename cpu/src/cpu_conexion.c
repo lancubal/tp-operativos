@@ -24,7 +24,7 @@ void iniciarConexiones(cpu_config_t* cpuConfig) {
     sockets->interruptSocket = iniciarServerProceso(cpuConfig->ipCPU, cpuConfig->puertoEscuchaInterrupt, "CPU Interrupt");
 
     // Nos conectamos al servidor de memoria utilizando la IP y el puerto especificados en la configuración de la CPU.
-    sockets->memoriaSocket = connectToServer(cpuConfig->ipMemoria,cpuConfig->puertoMemoria);
+    sockets->memoriaSocket = connectToServer(cpuConfig->ipMemoria, cpuConfig->puertoMemoria);
 }
 
 
@@ -57,15 +57,16 @@ void procesar_conexion(t_procesar_conexion_args* conexion_args) {
         switch (packet->op_code) {
             case PCB: {
                 // Deserializo el PCB
-                t_PCB *pcb = malloc(sizeof(t_PCB));
+                //t_PCB *new_pcb = malloc(sizeof(t_PCB));
                 deserialize_pcb(packet->payload, packet->payload_size, pcb);
                 if(pcb != NULL) {
                     // Cargo el contexto de ejecución y logeo los datos del PCB
-                    load_context(&CPU_Registers, &pcb->CPU_REGISTERS);
+                    //pcb = new_pcb;
+                    //free(new_pcb);
                     log_info(logger, "Recibido PCB con PID: %d\n", pcb->PID);
                     log_info(logger, "Recibido PCB con Estado: %s\n", pcb->State);
                     log_info(logger, "Recibido PCB con PC: %d\n", pcb->CPU_REGISTERS.PC);
-                    log_info(logger, "CPU PC %d", CPU_Registers.PC);
+                    log_info(logger, "CPU PC %d", pcb->CPU_REGISTERS.PC);
 
                     // Semaforo para avisarle a cpu_ciclo que ya se recibio el pcb
                     sem_post(&sem_pcb);
@@ -85,14 +86,25 @@ void procesar_conexion(t_procesar_conexion_args* conexion_args) {
                 sem_post(&sem_instruccion);
             }
             default: {
-                break;
+                log_warning(logger, "Cliente desconectado\n");
+                return;
             }
         }
         destroy_packet(packet);
     }
-
     // Si el cliente se desconectó, registramos una advertencia
     log_warning(logger, "El cliente se desconecto de %s server", server_name);
+}
+
+// Escuchar al servidor conectado
+void cliente_escuchar(int* client_socket) {
+    // debo usar procesar_conexion y correrlo.
+    pthread_t hilo;
+    t_procesar_conexion_args* args = malloc(sizeof(t_procesar_conexion_args));
+    args->fd = *client_socket;
+    args->server_name = "test";
+    pthread_create(&hilo, NULL, (void*) procesar_conexion, (void*) args);
+    pthread_detach(hilo);
 }
 
 /**
@@ -124,16 +136,6 @@ int server_escuchar(char* server_name, const int* server_socket) {
     return 0;
 }
 
-// Escuchar al servidor conectado
-void cliente_escuchar(int* client_socket) {
-    // debo usar procesar_conexion y correrlo.
-    pthread_t hilo;
-    t_procesar_conexion_args* args = malloc(sizeof(t_procesar_conexion_args));
-    args->fd = *client_socket;
-    args->server_name = "test";
-    pthread_create(&hilo, NULL, (void*) procesar_conexion, (void*) args);
-    pthread_detach(hilo);
-}
 
 /**
  * @brief Escucha conexiones entrantes en un socket de servidor en un bucle.

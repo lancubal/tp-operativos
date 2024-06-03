@@ -22,6 +22,5 @@ typedef struct {
 extern t_interface* interface;
 
 void start_interface();
-void use_interface();
 
 #endif //TP_2024_V2_ENTRADASALIDA_INTERFACES_H

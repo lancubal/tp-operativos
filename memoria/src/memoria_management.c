@@ -10,7 +10,7 @@ void init_memory() {
     int PAGE_SIZE = memoria_config->tamPagina;
     memory = malloc(MEMORY_SIZE);
     if (memory == NULL) {
-        perror("Error al reservar memoria");
+        log_error(logger, "Error al reservar memoria");
         exit(EXIT_FAILURE);
     }
 
@@ -18,7 +18,7 @@ void init_memory() {
     page_table.num_entries = MEMORY_SIZE / PAGE_SIZE;
     page_table.entries = (t_page_table_entry*)malloc(page_table.num_entries * sizeof(t_page_table_entry));
     if (page_table.entries == NULL) {
-        perror("Error al reservar tabla de páginas");
+        log_error(logger, "Error al reservar tabla de páginas");
         free(memory);
         exit(EXIT_FAILURE);
     }
@@ -41,7 +41,7 @@ uint32_t translate_address(uint32_t logical_address) {
     uint32_t offset = logical_address % PAGE_SIZE;
 
     if (page_number >= page_table.num_entries || !page_table.entries[page_number].valid) {
-        fprintf(stderr, "Segmentation fault: Invalid page number or page not valid\n");
+        log_error(logger, "Segmentation fault: Invalid page number or page not valid");
         exit(EXIT_FAILURE);
     }
 
@@ -65,7 +65,7 @@ uint8_t read_memory_from_logical(uint32_t logical_address) {
 
 void allocate_page(uint32_t page_number, uint32_t frame_number) {
     if (page_number >= page_table.num_entries) {
-        fprintf(stderr, "Error: Page number out of range\n");
+        log_error(logger, "Error: Page number out of range");
         return;
     }
 

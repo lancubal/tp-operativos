@@ -5,8 +5,10 @@
 // Serializers and deserializers
 void serialize_packet(void* data, char** buffer, size_t *size) {
     t_packet *packet = (t_packet *) data; // Convertir el puntero genérico a un puntero de paquete
+
     // Asignar memoria para el buffer
     *size = sizeof(OP_CODES) + sizeof(size_t) + packet->payload_size;
+
     *buffer = malloc(*size);
     if (*buffer == NULL) {
         log_error(logger, "Error al asignar memoria para el buffer: %s", strerror(errno));
@@ -42,7 +44,8 @@ void deserialize_packet(char* buffer, size_t size, t_packet* packet) {
 void serialize_pcb(void* data, char** buffer, size_t *size) {
     t_PCB *pcb = (t_PCB *) data; // Convertir el puntero genérico a un puntero de PCB
     // Calcular el tamaño del PCB
-    *size = sizeof(pcb->PID) + sizeof(pcb->Quantum) + strlen(pcb->State) + 1 + sizeof(pcb->CPU_REGISTERS);
+    *size = sizeof(pcb->PID) + sizeof(pcb->Quantum) + strlen(pcb->State) + 1 + sizeof(pcb->CPU_REGISTERS)
+            + sizeof(pcb->memory_size) + sizeof(pcb->page_table) + sizeof(pcb->recurso);
 
     // Asignar memoria para el buffer
     *buffer = malloc(*size);
@@ -60,9 +63,19 @@ void serialize_pcb(void* data, char** buffer, size_t *size) {
     memcpy(*buffer + offset, pcb->State, strlen(pcb->State) + 1); // Copiar el Estado
     offset += strlen(pcb->State) + 1;
     memcpy(*buffer + offset, &pcb->CPU_REGISTERS, sizeof(pcb->CPU_REGISTERS)); // Copiar los registros de la CPU
+    offset += sizeof(pcb->CPU_REGISTERS);
+    memcpy(*buffer + offset, &pcb->memory_size, sizeof(pcb->memory_size)); // Copiar el tamaño de la memoria
+    offset += sizeof(pcb->memory_size);
+    memcpy(*buffer + offset, &pcb->page_table, sizeof(pcb->page_table)); // Copiar la tabla de páginas
+    offset += sizeof(pcb->page_table);
+    memcpy(*buffer + offset, pcb->recurso, sizeof(pcb->recurso)); // Copiar el tamaño de la tabla de páginas
 }
 
 void deserialize_pcb(char* buffer, size_t size, t_PCB* pcb) {
+    if (pcb == NULL) {
+        log_error(logger, "El PCB es NULL");
+        return;
+    }
     // Copiar los datos del buffer en el PCB
     size_t offset = 0; // Desplazamiento en el buffer
     memcpy(&pcb->PID, buffer + offset, sizeof(pcb->PID)); // Copiar el PID
@@ -78,6 +91,12 @@ void deserialize_pcb(char* buffer, size_t size, t_PCB* pcb) {
     memcpy(pcb->State, buffer + offset, strlen(buffer + offset) + 1); // Copiar el Estado
     offset += strlen(buffer + offset) + 1;
     memcpy(&pcb->CPU_REGISTERS, buffer + offset, sizeof(pcb->CPU_REGISTERS)); // Copiar los registros de la CPU
+    offset += sizeof(pcb->CPU_REGISTERS);
+    memcpy(&pcb->memory_size, buffer + offset, sizeof(pcb->memory_size)); // Copiar el tamaño de la memoria
+    offset += sizeof(pcb->memory_size);
+    memcpy(&pcb->page_table, buffer + offset, sizeof(pcb->page_table)); // Copiar la tabla de páginas
+    offset += sizeof(pcb->page_table);
+    memcpy(pcb->recurso, buffer + offset, sizeof(pcb->recurso)); // Copiar el tamaño de la tabla de páginas
 }
 
 // Create a packet
@@ -96,14 +115,15 @@ t_packet* create_packet(OP_CODES op_code, size_t payload_size, void* data, seria
         free(packet);
         return NULL;
     }
-    // Serializar data
-    serializer_func != NULL ?
-        serializer_func(data, &packet->payload, &payload_size) :
-        memcpy(packet->payload, data, payload_size);
 
     // Asignar los valores del paquete
     packet->op_code = op_code;
     packet->payload_size = payload_size;
+
+    // Serializar data
+    serializer_func != NULL ?
+        serializer_func(data, &packet->payload, &payload_size) :
+         data != NULL ? memcpy(packet->payload, data, payload_size) : NULL;
 
     return packet;
 }

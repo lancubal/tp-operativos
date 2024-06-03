@@ -2,10 +2,7 @@
 #include <utils/config.h>
 #include <memoria_config.h>
 #include <memoria_conexion.h>
-#include "sockets/networking.h"
 #include <signal.h>
-#include <memoria_management.h>
-
 
 // Definición de la función sighandler que se ejecutará cuando se reciba la señal SIGINT (CTRL + C)
 void sighandler(int s);

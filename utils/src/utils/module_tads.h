@@ -44,6 +44,7 @@ typedef struct {
     T_CPU_REGISTERS CPU_REGISTERS; // Registros de la CPU
     uint32_t memory_size;
     t_page_table page_table;
+    char recurso[10][32];
     size_t size;
 } t_PCB;
 

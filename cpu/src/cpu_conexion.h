@@ -24,11 +24,13 @@ typedef struct {
     char* server_name;  // Nombre del servidor
 } t_procesar_conexion_args;
 
-extern T_CPU_REGISTERS CPU_Registers;
+extern t_PCB *pcb;
 extern sem_t sem_pcb;
 extern sem_t sem_cycle;
 extern sem_t sem_instruccion;
 extern char* instruccion;
+extern fd_set sockets_set, ready_set;
+extern int max_fd;
 
 void iniciarConexiones(cpu_config_t* cpuConfig);
 int server_escuchar(char* server_name, const int*  server_socket);

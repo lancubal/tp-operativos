@@ -15,7 +15,7 @@
 
 typedef enum {
     SET, SUM, SUB, MOV, MOV_IN, MOV_OUT, RESIZE, JNZ, COPY_STRING,
-    WAIT, SIGNAL, EXIT
+    I_WAIT, I_SIGNAL, EXIT, IO
 } instruction_type;
 
 typedef struct {
@@ -23,14 +23,14 @@ typedef struct {
     char operands[5][32]; // 5 operandos como máximo, tamaño máximo de cada operando: 32 caracteres
 } instruction_decoded_t;
 
-extern T_CPU_REGISTERS CPU_Registers;
+extern t_PCB* pcb;
 extern sem_t sem_pcb;
 extern sem_t sem_cycle;
 extern char* instruccion;
 extern sem_t sem_instruccion;
 extern instruction_decoded_t* decoded_instruction;
+extern bool interrupcion;
 
-t_PCB* pcb_recv(int socketMemoria);
 void cpu_ciclo();
 
 
